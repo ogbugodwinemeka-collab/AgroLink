@@ -272,7 +272,8 @@
             display: none;
             left: 25%;
             top: 50%;
-            transform: translateY(-50%);
+            /* Flips the truck emoji to point right towards the urban market */
+            transform: scaleX(-1) translateY(-50%);
         }
         .map-line {
             position: absolute;
@@ -524,6 +525,7 @@
         window.addEventListener('DOMContentLoaded', async () => {
             if (supabaseClient) {
                 await fetchLatestState();
+                setupRealtimeListeners();
             }
         });
 
@@ -559,6 +561,36 @@
             } catch (err) {
                 console.error("Error connecting to Supabase database states:", err);
             }
+        }
+
+        // ⚡ SUPABASE REALTIME INITIALIZATION ⚡
+        function setupRealtimeListeners() {
+            console.log("📡 Initializing live updates channel stream...");
+
+            supabaseClient
+                .channel('schema-db-changes')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'listings' }, payload => {
+                    console.log('🆕 Live Harvest Posted:', payload.new);
+                    activeProduct = payload.new;
+                    renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
+                })
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
+                    console.log('🔐 Live Escrow Order Created:', payload.new);
+                    activeOrder = payload.new;
+                    renderOrderUI(activeOrder);
+                    
+                    // Activate live transit display sequence
+                    const truck = document.getElementById('map-truck');
+                    truck.style.display = 'block';
+                    setTimeout(() => { truck.style.left = "55%"; }, 100);
+                })
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
+                    if (payload.new.status === 'released') {
+                        console.log('🏁 Order marked as delivered:', payload.new);
+                        executeUIPayoutRelease(payload.new);
+                    }
+                })
+                .subscribe();
         }
 
         // Switch panel tabs
@@ -638,9 +670,8 @@
             } else {
                 // Fallback sandbox variables
                 activeProduct = { crop, price, qty };
+                renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
             }
-
-            renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
 
             alert(`Listing Published! Let's check out the Buyer Market tab to view it.`);
             switchTab('buyer');
@@ -732,23 +763,19 @@
                 activeOrder = data;
             } else {
                 activeOrder = orderPayload;
+                renderOrderUI(activeOrder);
+                
+                // Backup manual simulation trigger
+                const truck = document.getElementById('map-truck');
+                truck.style.display = 'block';
+                setTimeout(() => { truck.style.left = "55%"; }, 100);
             }
-
-            renderOrderUI(activeOrder);
 
             alert(`Order Placed! Funds locked. Let's switch to the Driver Dispatch tab to run delivery.`);
             switchTab('driver');
-            
-            // Activate truck animation
-            const truck = document.getElementById('map-truck');
-            truck.style.display = 'block';
-            setTimeout(() => {
-                truck.style.left = "55%";
-            }, 100);
         }
 
         function renderOrderUI(order) {
-            // Support database standard Snake_case keys vs CamelCase Fallback
             const cropCost = order.crop_cost !== undefined ? order.crop_cost : order.cropCost;
             const deliveryFee = order.delivery_fee !== undefined ? order.delivery_fee : order.deliveryFee;
             const totalEscrowAmount = order.total_escrow !== undefined ? order.total_escrow : order.totalEscrowAmount;
@@ -787,58 +814,65 @@
         async function completeDelivery() {
             if (!activeOrder) return;
 
-            const truck = document.getElementById('map-truck');
-            truck.style.left = "65%"; // Finish drive animation
+            // Sync status update to database if connected
+            if (supabaseClient) {
+                const { error } = await supabaseClient
+                    .from('orders')
+                    .update({ status: 'released' })
+                    .eq('id', activeOrder.id);
 
-            const cropCost = activeOrder.crop_cost !== undefined ? activeOrder.crop_cost : activeOrder.cropCost;
-            const deliveryFee = activeOrder.delivery_fee !== undefined ? activeOrder.delivery_fee : activeOrder.deliveryFee;
-
-            setTimeout(async () => {
-                // Payout update split
-                wallets.farmer += cropCost;
-                wallets.driver += deliveryFee;
-
-                // Sync to database if connected
-                if (supabaseClient) {
-                    const { error } = await supabaseClient
-                        .from('orders')
-                        .update({ status: 'released' })
-                        .eq('id', activeOrder.id);
-
-                    if (error) {
-                        alert("Database error confirming order release: " + error.message);
-                        return;
-                    }
+                if (error) {
+                    alert("Database error confirming order release: " + error.message);
+                    return;
                 }
+            } else {
+                // Fallback offline execution handler
+                const truck = document.getElementById('map-truck');
+                truck.style.left = "65%";
+                setTimeout(() => { executeUIPayoutRelease(activeOrder); }, 600);
+            }
+        }
 
-                // Update UI balances
-                updateWalletUI();
+        // Separate function to handle the math payout interface transformations cleanly
+        function executeUIPayoutRelease(orderTarget) {
+            const cropCost = orderTarget.crop_cost !== undefined ? orderTarget.crop_cost : orderTarget.cropCost;
+            const deliveryFee = orderTarget.delivery_fee !== undefined ? orderTarget.delivery_fee : orderTarget.deliveryFee;
 
-                // Clear Vault Balance
-                document.getElementById('ledger-amount').innerText = "$0.00";
-                document.getElementById('ledger-status-text').innerText = `✅ ESCROW PAID OUT: $${cropCost.toFixed(2)} paid to Farmer, $${deliveryFee.toFixed(2)} paid to Driver.`;
+            // Payout update split
+            wallets.farmer += cropCost;
+            wallets.driver += deliveryFee;
 
-                updateSteps('step-released', '#10b981'); // Green for payout released
+            // Update UI balances
+            updateWalletUI();
 
-                // Reset driver job card
-                document.getElementById('driver-jobs').innerHTML = `
-                    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px; color: #15803d;">
-                        <p style="font-weight: bold;">Payout Complete!</p>
-                        <p style="font-size: 0.8rem;">Delivery fee ($${deliveryFee.toFixed(2)}) sent to your wallet.</p>
-                    </div>
-                `;
-                document.getElementById('delivery-btn').style.display = 'none';
-                
-                // Reset map truck
+            // Clear Vault Balance
+            document.getElementById('ledger-amount').innerText = "$0.00";
+            document.getElementById('ledger-status-text').innerText = `✅ ESCROW PAID OUT: $${cropCost.toFixed(2)} paid to Farmer, $${deliveryFee.toFixed(2)} paid to Driver.`;
+
+            updateSteps('step-released', '#10b981'); // Green for payout released
+
+            // Reset driver job card
+            document.getElementById('driver-jobs').innerHTML = `
+                <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px; color: #15803d;">
+                    <p style="font-weight: bold;">Payout Complete!</p>
+                    <p style="font-size: 0.8rem;">Delivery fee ($${deliveryFee.toFixed(2)}) sent to your wallet.</p>
+                </div>
+            `;
+            document.getElementById('delivery-btn').style.display = 'none';
+            
+            // Reset map truck configuration
+            const truck = document.getElementById('map-truck');
+            truck.style.left = "65%";
+            setTimeout(() => {
                 truck.style.display = 'none';
                 truck.style.left = "25%";
+            }, 1000);
 
-                alert(`Success! The delivery is confirmed. Escrow split has distributed the funds instantly. check your wallets at the top bar!`);
-                
-                activeProduct = null;
-                activeOrder = null;
-            }, 600);
+            alert(`Success! The delivery is confirmed. Escrow split has distributed the funds instantly. check your wallets at the top bar!`);
+            
+            activeProduct = null;
+            activeOrder = null;
         }
     </script>
 </body>
-</html>
+</html
