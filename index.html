@@ -432,21 +432,16 @@
 
     <script>
         // ========================================================
-        // 🔑 CONFIGURATION: Swap these with your actual Supabase credentials!
+        // 🔑 CONFIGURATION: Connected directly to your database!
         // ========================================================
-        const SUPABASE_URL = "https://your-project-id.supabase.co"; 
-        const SUPABASE_ANON_KEY = "your-anon-public-key";
+        const SUPABASE_URL = "https://ifqynplwbopesnvlmppj.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmcXlucGx3Ym9wZXNudmxtcHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMzcyOTcsImV4cCI6MjA5OTgxMzI5N30.zRVVYW9bJohjjchyRbpIVKV26NoZIpO4mqDRsujHxqw";
         
         let supabaseClient = null;
 
-        // Auto-detect script changes
         if (SUPABASE_URL !== "https://your-project-id.supabase.co" && SUPABASE_ANON_KEY !== "your-anon-public-key") {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log("⚡ Supabase Initialized Successfully!");
-        } else {
-            console.warn("⚠️ Placeholder keys detected. Running in offline Sandbox mode.");
-            // 🚨 MOBILE CACHE & SYNC DIAGNOSTIC POPUP:
-            alert("Diagnostic Check: The web page loaded successfully, but it is currently running in OFFLINE SANDBOX MODE because the placeholder keys have not been replaced inside the script file.");
         }
 
         let activeProduct = null;
@@ -558,9 +553,6 @@
                     .single();
                 if (error) return;
                 activeProduct = data;
-            } else {
-                activeProduct = { crop, price, qty };
-                renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
             }
             switchTab('buyer');
             selectProductForCheckout();
@@ -623,12 +615,6 @@
                     .single();
                 if (error) return;
                 activeOrder = data;
-            } else {
-                activeOrder = orderPayload;
-                renderOrderUI(activeOrder);
-                const truck = document.getElementById('map-truck');
-                truck.style.display = 'block';
-                setTimeout(() => { truck.style.left = "55%"; }, 100);
             }
             switchTab('driver');
         }
@@ -659,10 +645,6 @@
             if (!activeOrder) return;
             if (supabaseClient) {
                 await supabaseClient.from('orders').update({ status: 'released' }).eq('id', activeOrder.id);
-            } else {
-                const truck = document.getElementById('map-truck');
-                truck.style.left = "65%";
-                setTimeout(() => { executeUIPayoutRelease(activeOrder); }, 600);
             }
         }
 
