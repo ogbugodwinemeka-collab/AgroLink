@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroLink - Interactive Prototype</title>
+    <style>
+        /* CSS Styling */
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #e8f5e9;
+            --accent: #f57c00;
+            --dark: #263238;
+            --light: #f8f9fa;
+            --border: #cfd8dc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            background: var(--accent);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+
+        /* Forms and Inputs */
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #1b5e20;
+        }
+
+        /* Escrow Tracker Area */
+        .escrow-ledger {
+            background-color: #fffde7;
+            border: 1px solid #fff59d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .escrow-status {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 1px dashed var(--accent);
+        }
+
+        .status-step {
+            text-align: center;
+            font-weight: bold;
+            color: #b0bec5;
+        }
+
+        .status-step.active {
+            color: var(--accent);
+        }
+
+        /* Utility list styling */
+        ul {
+            list-style-type: none;
+            margin-top: 10px;
+        }
+
+        li {
+            padding: 8px;
+            border-bottom: 1px solid var(--light);
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌾 AgroLink Dashboard</h1>
+        <p>Connecting Farmers, Buyers, and Drivers Direct & Securely</p>
+    </header>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
+        <div style="background: white; padding: 10px; border-radius: 5px; border: 1px solid var(--border);">
+            👨‍🌾 Farmer Wallet: <strong>$<span id="farmer-wallet">0.00</span></strong>
+        </div>
+        <div style="background: white; padding: 10px; border-radius: 5px; border: 1px solid var(--border);">
+            🚛 Driver Wallet: <strong>$<span id="driver-wallet">0.00</span></strong>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <div class="card">
+            <h2>👨‍🌾 Farmer Panel <span class="badge">List Yield</span></h2>
+            <p>List fresh crops to sell directly to urban buyers[cite: 15, 16].</p>
+            
+            <label for="crop-type">Crop Type</label>
+            <input type="text" id="crop-type" value="Cassava">
+
+            <label for="crop-price">Price (per kg)</label>
+            <input type="number" id="crop-price" value="2.50" step="0.10">
+
+            <label for="crop-qty">Available Weight (kg)</label>
+            <input type="number" id="crop-qty" value="100">
+
+            <button onclick="listProduct()">Post Listing to Marketplace</button>
+
+            <h3 style="margin-top: 20px;">Active Storefront:</h3>
+            <div id="storefront-list" style="margin-top: 10px; font-style: italic;">No products listed yet.</div>
+        </div>
+
+        <div class="card">
+            <h2>🛒 Buyer Marketplace <span class="badge">Purchase</span></h2>
+            <p>Restaurants & markets purchase and lock funds in escrow[cite: 54, 79].</p>
+            
+            <div id="marketplace-display" style="border: 1px solid var(--border); padding: 10px; border-radius: 4px; background: var(--light); margin-top: 10px; min-height: 100px;">
+                <p style="color: #777;">Waiting for farmer to list crops...</p>
+            </div>
+
+            <div id="order-action-area" style="display: none; margin-top: 15px;">
+                <label for="order-qty">How many kg to buy?</label>
+                <input type="number" id="order-qty" value="20">
+                <p style="margin-top: 10px; font-size: 0.9rem;">Estimated Logistics Fee: <strong>$15.00</strong> [cite: 68]</p>
+                <button onclick="placeOrder()" style="background: var(--accent);">Buy & Secure Funds in Escrow</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🚛 Dispatch Network <span class="badge">Logistics</span></h2>
+            <p>Independent drivers accept nearby trips & deliver fresh produce[cite: 20, 21].</p>
+            
+            <div id="driver-jobs" style="border: 1px solid var(--border); padding: 10px; border-radius: 4px; background: var(--light); margin-top: 10px; min-height: 100px;">
+                <p style="color: #777;">No deliveries dispatched yet.</p>
+            </div>
+
+            <button id="delivery-btn" onclick="completeDelivery()" style="display: none; background-color: #0288d1;">Mark Delivery as Complete</button>
+        </div>
+
+    </div>
+
+    <div class="escrow-ledger">
+        <h2>🛡️ Live Escrow Ledger (System Monitor)</h2>
+        <p>This panel shows how money is safely parked while delivery is in transit[cite: 70, 71].</p>
+        
+        <div class="escrow-status">
+            <div id="step-idle" class="status-step active">1. Idle</div>
+            <div id="step-held" class="status-step">2. Funds Held ($) [cite: 79]</div>
+            <div id="step-transit" class="status-step">3. In Transit 🚚 [cite: 80]</div>
+            <div id="step-released" class="status-step">4. Split & Paid Out! 🎉 </div>
+        </div>
+
+        <div style="margin-top: 15px; background: white; padding: 10px; border-radius: 4px; border: 1px solid var(--border);">
+            <p><strong>Ledger Status:</strong> <span id="ledger-status-text">No active transaction.</span></p>
+            <p><strong>Secure Vault Balance:</strong> <span id="ledger-amount">$0.00</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Interactive state (Instead of a backend database, we hold data in memory)
+        let activeProduct = null; [cite: 46]
+        let activeOrder = null; [cite: 53]
+        let wallets = { farmer: 0, driver: 0 }; [cite: 44]
+
+        // Update UI Wallets
+        function updateWallets() {
+            document.getElementById('farmer-wallet').innerText = wallets.farmer.toFixed(2);
+            document.getElementById('driver-wallet').innerText = wallets.driver.toFixed(2);
+        }
+
+        // STEP 1: Farmer lists a crop [cite: 77]
+        function listProduct() {
+            const crop = document.getElementById('crop-type').value;
+            const price = parseFloat(document.getElementById('crop-price').value);
+            const qty = parseInt(document.getElementById('crop-qty').value);
+
+            activeProduct = { crop, price, qty };
+
+            // Render on Farmer view [cite: 46]
+            document.getElementById('storefront-list').innerHTML = `
+                <div style="background: var(--primary-light); padding: 8px; border-radius: 4px; font-weight: bold;">
+                    🌾 ${qty}kg of ${crop} @ $${price}/kg
+                </div>
+            `;
+
+            // Render on Buyer view 
+            document.getElementById('marketplace-display').innerHTML = `
+                <div style="border-left: 4px solid var(--primary); padding-left: 10px;">
+                    <strong>Fresh Crop:</strong> ${crop}<br>
+                    <strong>Price:</strong> $${price}/kg<br>
+                    <strong>Available:</strong> ${qty} kg [cite: 49, 50, 51]
+                </div>
+            `;
+            document.getElementById('order-action-area').style.display = "block";
+        }
+
+        // STEP 2: Buyer orders, funds go to Escrow [cite: 78, 79]
+        function placeOrder() {
+            const orderQty = parseInt(document.getElementById('order-qty').value);
+            
+            if (orderQty > activeProduct.qty) {
+                alert("Not enough stock available!");
+                return;
+            }
+
+            const cropCost = orderQty * activeProduct.price;
+            const deliveryFee = 15.00; // Mock logistics flat fee [cite: 68]
+            const totalEscrowAmount = cropCost + deliveryFee;
+
+            activeOrder = {
+                crop: activeProduct.crop,
+                qty: orderQty,
+                cropCost: cropCost,
+                deliveryFee: deliveryFee,
+                totalEscrowAmount: totalEscrowAmount,
+                status: 'HELD' [cite: 75]
+            };
+
+            // Lock funds in Escrow System [cite: 79]
+            document.getElementById('ledger-amount').innerText = `$${totalEscrowAmount.toFixed(2)}`;
+            document.getElementById('ledger-status-text').innerText = `Locked $${totalEscrowAmount.toFixed(2)} ($${cropCost.toFixed(2)} crop cost + $${deliveryFee.toFixed(2)} logistics fee)[cite: 68]. Waiting for driver dispatch...`;
+            
+            // Update Visual Progress Bar
+            document.getElementById('step-idle').classList.remove('active');
+            document.getElementById('step-held').classList.add('active');
+
+            // Dispatch Driver Alert [cite: 80]
+            document.getElementById('driver-jobs').innerHTML = `
+                <div style="border-left: 4px solid var(--accent); padding-left: 10px;">
+                    <strong>Deliver:</strong> ${orderQty}kg of ${activeOrder.crop}<br>
+                    <strong>Route:</strong> Farm ➔ City Center [cite: 65, 66]<br>
+                    <strong>Payout:</strong> $${deliveryFee.toFixed(2)} [cite: 68]
+                </div>
+            `;
+            document.getElementById('delivery-btn').style.display = "block";
+            
+            // Mark step 3 in progress
+            document.getElementById('step-transit').classList.add('active');
+            
+            // Hide purchase interaction until next cycle
+            document.getElementById('order-action-area').style.display = "none";
+            document.getElementById('marketplace-display').innerHTML = `<p style="color: #777;">Order in process...</p>`;
+        }
+
+        // STEP 3 & 4: Driver completes delivery, Buyer confirms quality, funds release [cite: 81, 82]
+        function completeDelivery() {
+            if (!activeOrder) return;
+
+            // Simulate the payout splits 
+            wallets.farmer += activeOrder.cropCost;
+            wallets.driver += activeOrder.deliveryFee;
+
+            updateWallets();
+
+            // Clear Escrow ledger
+            document.getElementById('ledger-amount').innerText = "$0.00";
+            document.getElementById('ledger-status-text').innerText = `Escrow Released! $${activeOrder.cropCost.toFixed(2)} sent to Farmer, $${activeOrder.deliveryFee.toFixed(2)} sent to Driver.`;
+
+            // Complete visual tracker progress
+            document.getElementById('step-held').classList.remove('active');
+            document.getElementById('step-transit').classList.remove('active');
+            document.getElementById('step-released').classList.add('active');
+
+            // Reset dashboard state
+            document.getElementById('driver-jobs').innerHTML = `<p style="color: #2e7d32; font-weight: bold;">✅ Delivery successful! Escrow released.</p>`;
+            document.getElementById('delivery-btn').style.display = "none";
+            document.getElementById('storefront-list').innerText = "No products listed yet.";
+            
+            activeProduct = null;
+            activeOrder = null;
+        }
+    </script>
+</body>
+</html>
