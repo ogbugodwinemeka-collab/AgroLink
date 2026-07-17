@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgroLink - B2B Marketplace & Logistics</title>
     
-    <!-- 100% Offline Styles (No internet required, works instantly) -->
+    <!-- 100% Offline Styles -->
     <style>
         * {
             box-sizing: border-box;
@@ -20,7 +20,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* Navigation styling */
         nav {
             background-color: #0b3014;
             color: white;
@@ -66,7 +65,6 @@
             color: white;
             font-weight: 600;
         }
-        /* Balance Bar */
         .balance-bar {
             background-color: #f0fdf4;
             border-bottom: 1px solid #dcfce7;
@@ -84,7 +82,6 @@
         .balance-item span {
             font-weight: bold;
         }
-        /* Main Layout */
         main {
             flex-grow: 1;
             max-width: 1200px;
@@ -92,14 +89,12 @@
             margin: 0 auto;
             padding: 24px 20px;
         }
-        /* Tab Views */
         .tab-content {
-            display: none; /* Hidden by default */
+            display: none;
         }
         .tab-content.active {
-            display: block; /* Only show active view */
+            display: block;
         }
-        /* Two Column Grid */
         .grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -110,7 +105,6 @@
                 grid-template-columns: 1fr 2fr;
             }
         }
-        /* Cards */
         .card {
             background: white;
             border: 1px solid #e5e7eb;
@@ -128,7 +122,6 @@
             font-size: 0.875rem;
             margin-bottom: 24px;
         }
-        /* Forms */
         .form-group {
             margin-bottom: 16px;
         }
@@ -174,7 +167,6 @@
         button.btn-blue:hover {
             background-color: #1d4ed8;
         }
-        /* Store & Market placeholders */
         .placeholder-box {
             border: 2px dashed #e5e7eb;
             border-radius: 12px;
@@ -182,7 +174,6 @@
             text-align: center;
             color: #9ca3af;
         }
-        /* Footer */
         footer {
             background-color: #0f172a;
             color: #f1f5f9;
@@ -234,7 +225,6 @@
             font-size: 0.875rem;
             border-left: 4px solid #64748b;
         }
-        /* Routing Map Simulation */
         .map-box {
             background-color: #f3f4f6;
             border: 1px solid #e5e7eb;
@@ -272,7 +262,6 @@
             display: none;
             left: 25%;
             top: 50%;
-            /* Flips the truck emoji to point right towards the urban market */
             transform: scaleX(-1) translateY(-50%);
         }
         .map-line {
@@ -289,50 +278,31 @@
 </head>
 <body>
 
-    <!-- Top Navigation Bar -->
     <nav>
         <div class="nav-container">
-            <div class="brand">
-                <span>🌾</span> AgroLink
-            </div>
-            <!-- Interactive Switch Buttons -->
+            <div class="brand"><span>🌾</span> AgroLink</div>
             <div class="nav-tabs">
-                <button onclick="switchTab('farmer')" id="tab-btn-farmer" class="tab-btn active">
-                    👨‍🌾 Farmer Panel
-                </button>
-                <button onclick="switchTab('buyer')" id="tab-btn-buyer" class="tab-btn">
-                    🛒 Buyer Market
-                </button>
-                <button onclick="switchTab('driver')" id="tab-btn-driver" class="tab-btn">
-                    🚛 Driver Dispatch
-                </button>
+                <button onclick="switchTab('farmer')" id="tab-btn-farmer" class="tab-btn active">👨‍🌾 Farmer Panel</button>
+                <button onclick="switchTab('buyer')" id="tab-btn-buyer" class="tab-btn">🛒 Buyer Market</button>
+                <button onclick="switchTab('driver')" id="tab-btn-driver" class="tab-btn">🚛 Driver Dispatch</button>
             </div>
         </div>
     </nav>
 
-    <!-- Global Balance bar -->
     <div class="balance-bar">
         <div class="balance-container">
-            <div class="balance-item">
-                👨‍🌾 Farmer Wallet: <span id="farmer-wallet">$0.00</span>
-            </div>
-            <div class="balance-item">
-                🚛 Driver Wallet: <span id="driver-wallet">$0.00</span>
-            </div>
+            <div class="balance-item">👨‍🌾 Farmer Wallet: <span id="farmer-wallet">$0.00</span></div>
+            <div class="balance-item">🚛 Driver Wallet: <span id="driver-wallet">$0.00</span></div>
         </div>
     </div>
 
-    <!-- Main Views -->
     <main>
-        
         <!-- 1. FARMER VIEW PANEL -->
         <div id="view-farmer" class="tab-content active">
             <div class="grid">
-                <!-- Listing Form -->
                 <div class="card">
                     <h2>🌱 New Harvest Listing</h2>
                     <p class="subtitle">List your fresh yields directly to businesses.</p>
-                    
                     <div class="form-group">
                         <label>Crop Type</label>
                         <input type="text" id="crop-type" value="Sweet Potatoes">
@@ -347,8 +317,6 @@
                     </div>
                     <button onclick="listProduct()" class="btn">Publish to Marketplace</button>
                 </div>
-
-                <!-- Farmer's Storefront Dashboard -->
                 <div class="card">
                     <h2>🏪 Your Digital Storefront</h2>
                     <p class="subtitle">Your active marketplace listings.</p>
@@ -363,24 +331,19 @@
         <!-- 2. BUYER VIEW PANEL -->
         <div id="view-buyer" class="tab-content">
             <div class="grid">
-                <!-- Market Listings -->
                 <div class="card">
                     <h2>🔍 Fresh Produce Market</h2>
                     <p class="subtitle">Source directly from verified local smallholder farms.</p>
                     <div id="marketplace-display" style="display: grid; grid-template-columns: 1fr; gap: 16px;">
-                        <!-- Empty State -->
                         <div class="placeholder-box" style="padding: 32px;">
                             <p style="font-weight: 500; margin-bottom: 4px;">No Fresh Harvests Available Yet</p>
                             <p style="font-size: 0.85rem;">Switch to the "Farmer Panel" to list a product first.</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Secure Checkout/Cart Card -->
                 <div class="card">
                     <h2>🛡️ Escrow Checkout</h2>
-                    <p class="subtitle">Funds are locked securely until you inspect and accept your delivery.</p>
-
+                    <p class="subtitle">Funds are locked securely until you inspect your delivery.</p>
                     <div id="order-action-area" style="display: none;">
                         <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #e5e7eb; font-size: 0.875rem;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -397,15 +360,12 @@
                                 <span id="checkout-total">$0.00</span>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label>Quantity to Purchase (kg)</label>
                             <input type="number" id="order-qty" value="50" oninput="selectProductForCheckout()">
                         </div>
-
                         <button onclick="placeOrder()" class="btn btn-orange">Lock Funds & Dispatch Driver</button>
                     </div>
-
                     <div id="no-order-active" style="text-align: center; padding: 24px 0; color: #9ca3af; font-size: 0.875rem;">
                         <p>Select a product from the market view to initiate checkout.</p>
                     </div>
@@ -416,39 +376,26 @@
         <!-- 3. DRIVER VIEW PANEL -->
         <div id="view-driver" class="tab-content">
             <div class="grid">
-                <!-- Driver Jobs -->
                 <div class="card">
                     <h2>📍 Local Jobs Board</h2>
                     <p class="subtitle">Claim orders based on farm proximity & transport rates.</p>
-
                     <div id="driver-jobs" class="placeholder-box" style="padding: 24px;">
                         <p style="font-weight: 500;">Awaiting matching order...</p>
                     </div>
-
                     <button id="delivery-btn" onclick="completeDelivery()" class="btn btn-blue" style="display: none; margin-top: 16px;">
                         Confirm Safe Delivery ✅
                     </button>
                 </div>
-
-                <!-- Routing Map Visual -->
                 <div class="card">
                     <h2>🗺️ GPS Routing Simulation</h2>
                     <p class="subtitle">Real-time status tracking.</p>
-                    
                     <div class="map-box">
-                        <!-- Farm Node -->
                         <div class="map-node" style="position: absolute; left: 15%;">
                             <div class="node-icon node-green">🌾</div>
                             <span style="font-size: 0.75rem; font-weight: bold; color: #4b5563;">Green Valley Farm</span>
                         </div>
-
-                        <!-- Routing Line -->
                         <div class="map-line"></div>
-
-                        <!-- Moving Truck Graphic -->
                         <div id="map-truck" class="map-truck">🚚</div>
-
-                        <!-- City Retailer Node -->
                         <div class="map-node" style="position: absolute; right: 15%;">
                             <div class="node-icon node-orange">🏬</div>
                             <span style="font-size: 0.75rem; font-weight: bold; color: #4b5563;">Urban Market</span>
@@ -457,10 +404,8 @@
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- Footer / Escrow Ledger -->
     <footer>
         <div class="footer-container">
             <div class="ledger-box">
@@ -469,59 +414,45 @@
                         <h3 style="font-size: 1.15rem; margin-bottom: 4px;">🛡️ Real-time Escrow Ledger System</h3>
                         <p style="color: #94a3b8; font-size: 0.85rem;">Financial Trust Protocol: Eliminating payment fear.</p>
                     </div>
-                    <div class="vault-badge">
-                        Vault Balance: <span id="ledger-amount">$0.00</span>
-                    </div>
+                    <div class="vault-badge">Vault Balance: <span id="ledger-amount">$0.00</span></div>
                 </div>
-
-                <!-- Escrow Status Steps -->
                 <div class="steps-grid">
-                    <div id="step-idle" class="step" style="border-left-color: #3b82f6; color: white;">
-                        1. Idle (Awaiting Listings)
-                    </div>
-                    <div id="step-held" class="step">
-                        2. Funds Locked
-                    </div>
-                    <div id="step-transit" class="step">
-                        3. In Delivery
-                    </div>
-                    <div id="step-released" class="step">
-                        4. Released!
-                    </div>
+                    <div id="step-idle" class="step" style="border-left-color: #3b82f6; color: white;">1. Idle (Awaiting Listings)</div>
+                    <div id="step-held" class="step">2. Funds Locked</div>
+                    <div id="step-transit" class="step">3. In Delivery</div>
+                    <div id="step-released" class="step">4. Released!</div>
                 </div>
-                
-                <p id="ledger-status-text" style="font-size: 0.75rem; color: #94a3b8; margin-top: 16px; font-style: italic; text-align: center;">Ready for transactions. Awaiting product listings.</p>
+                <p id="ledger-status-text" style="font-size: 0.75rem; color: #94a3b8; margin-top: 16px; font-style: italic; text-align: center;">Ready for transactions.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Load Supabase JS Library from CDN (Placed before executing any code) -->
+    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Web Application Logic -->
     <script>
         // ========================================================
-        // 🔑 CONFIGURATION: Replace these with your Supabase Keys
+        // 🔑 CONFIGURATION: Swap these with your actual Supabase credentials!
         // ========================================================
         const SUPABASE_URL = "https://your-project-id.supabase.co"; 
         const SUPABASE_ANON_KEY = "your-anon-public-key";
         
         let supabaseClient = null;
 
-        // Auto-detect if user changed placeholder keys
+        // Auto-detect script changes
         if (SUPABASE_URL !== "https://your-project-id.supabase.co" && SUPABASE_ANON_KEY !== "your-anon-public-key") {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log("⚡ Supabase Initialized Successfully!");
         } else {
-            console.warn("⚠️ Placeholder keys detected. Running locally in offline Sandbox mode.");
+            console.warn("⚠️ Placeholder keys detected. Running in offline Sandbox mode.");
+            // 🚨 MOBILE CACHE & SYNC DIAGNOSTIC POPUP:
+            alert("Diagnostic Check: The web page loaded successfully, but it is currently running in OFFLINE SANDBOX MODE because the placeholder keys have not been replaced inside the script file.");
         }
 
-        // Global variables (used for UI state and sandbox backup fallback)
         let activeProduct = null;
         let activeOrder = null;
         let wallets = { farmer: 0.00, driver: 0.00 };
 
-        // Fetch current states when page loads
         window.addEventListener('DOMContentLoaded', async () => {
             if (supabaseClient) {
                 await fetchLatestState();
@@ -529,11 +460,9 @@
             }
         });
 
-        // Pull active DB listings & orders on page boot
         async function fetchLatestState() {
             try {
-                // 1. Fetch latest active harvest listing
-                const { data: listing, error: err1 } = await supabaseClient
+                const { data: listing } = await supabaseClient
                     .from('listings')
                     .select('*')
                     .order('created_at', { ascending: false })
@@ -545,8 +474,7 @@
                     renderProductUI(listing.crop, listing.price, listing.qty);
                 }
 
-                // 2. Fetch active order in transit
-                const { data: order, error: err2 } = await supabaseClient
+                const { data: order } = await supabaseClient
                     .from('orders')
                     .select('*')
                     .eq('status', 'transit')
@@ -559,77 +487,50 @@
                     renderOrderUI(order);
                 }
             } catch (err) {
-                console.error("Error connecting to Supabase database states:", err);
+                console.error("Error reading database states:", err);
             }
         }
 
-        // ⚡ SUPABASE REALTIME INITIALIZATION ⚡
         function setupRealtimeListeners() {
-            console.log("📡 Initializing live updates channel stream...");
-
             supabaseClient
                 .channel('schema-db-changes')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'listings' }, payload => {
-                    console.log('🆕 Live Harvest Posted:', payload.new);
                     activeProduct = payload.new;
                     renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
                 })
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
-                    console.log('🔐 Live Escrow Order Created:', payload.new);
                     activeOrder = payload.new;
                     renderOrderUI(activeOrder);
-                    
-                    // Activate live transit display sequence
                     const truck = document.getElementById('map-truck');
                     truck.style.display = 'block';
                     setTimeout(() => { truck.style.left = "55%"; }, 100);
                 })
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
                     if (payload.new.status === 'released') {
-                        console.log('🏁 Order marked as delivered:', payload.new);
                         executeUIPayoutRelease(payload.new);
                     }
                 })
                 .subscribe();
         }
 
-        // Switch panel tabs
         function switchTab(tabName) {
-            console.log("Switching tab to: " + tabName);
-
-            // Hide all views
             const views = document.querySelectorAll('.tab-content');
-            views.forEach(view => {
-                view.classList.remove('active');
-            });
-            
-            // Show the target view
+            views.forEach(view => view.classList.remove('active'));
             const targetView = document.getElementById('view-' + tabName);
-            if (targetView) {
-                targetView.classList.add('active');
-            }
+            if (targetView) targetView.classList.add('active');
 
-            // Reset navigation tab button UI
             const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            // Set current tab button to active
+            buttons.forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('tab-btn-' + tabName);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
+            if (activeBtn) activeBtn.classList.add('active');
         }
 
-        // Helper to update stepper styles
         function updateSteps(activeStepId, color) {
             const steps = document.querySelectorAll('.step');
             steps.forEach(step => {
                 step.style.borderLeftColor = "#64748b";
                 step.style.color = "#94a3b8";
             });
-
             const currentStep = document.getElementById(activeStepId);
             if (currentStep) {
                 currentStep.style.borderLeftColor = color;
@@ -637,230 +538,149 @@
             }
         }
 
-        // Helper to update wallet values on screen
         function updateWalletUI() {
             document.getElementById('farmer-wallet').innerText = `$${wallets.farmer.toFixed(2)}`;
             document.getElementById('driver-wallet').innerText = `$${wallets.driver.toFixed(2)}`;
         }
 
-        // STEP 1: Farmer publishes product
         async function listProduct() {
             const crop = document.getElementById('crop-type').value;
             const price = parseFloat(document.getElementById('crop-price').value);
             const qty = parseInt(document.getElementById('crop-qty').value);
 
-            if (!crop || isNaN(price) || isNaN(qty)) {
-                alert("Please fill in valid listing details.");
-                return;
-            }
+            if (!crop || isNaN(price) || isNaN(qty)) return;
 
-            // Write to Supabase if connected
             if (supabaseClient) {
                 const { data, error } = await supabaseClient
                     .from('listings')
                     .insert([{ crop, price, qty }])
                     .select()
                     .single();
-
-                if (error) {
-                    alert("Database write failed: " + error.message);
-                    return;
-                }
+                if (error) return;
                 activeProduct = data;
             } else {
-                // Fallback sandbox variables
                 activeProduct = { crop, price, qty };
                 renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
             }
-
-            alert(`Listing Published! Let's check out the Buyer Market tab to view it.`);
             switchTab('buyer');
             selectProductForCheckout();
         }
 
         function renderProductUI(crop, price, qty) {
-            // Update local shop dashboard
             document.getElementById('storefront-list').innerHTML = `
                 <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <span style="color: #15803d; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">Active Listing</span>
                         <h3 style="font-size: 1.5rem; color: #165c26; margin: 4px 0;">🌾 ${crop}</h3>
-                        <p style="color: #6b7280; font-size: 0.85rem;">Available Stock: <strong>${qty} kg</strong></p>
+                        <p style="color: #6b7280; font-size: 0.85rem;">Stock: <strong>${qty} kg</strong></p>
                     </div>
                     <div style="text-align: right;">
                         <span style="font-size: 2rem; font-weight: 900; color: #165c26;">$${price.toFixed(2)}</span>
-                        <span style="display: block; font-size: 0.75rem; color: #9ca3af;">per kg</span>
                     </div>
-                </div>
-            `;
+                </div>`;
 
-            // Update Buyer market
             document.getElementById('marketplace-display').innerHTML = `
-                <div style="border: 1px solid #e5e7eb; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="border: 1px solid #e5e7eb; background: white; padding: 20px; border-radius: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                        <div>
-                            <span style="background-color: #f0fdf4; color: #15803d; font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 9999px;">Local Farm</span>
-                            <h3 style="font-size: 1.25rem; margin-top: 4px;">${crop}</h3>
-                        </div>
+                        <div><h3>${crop}</h3></div>
                         <span style="font-size: 1.25rem; font-weight: bold; color: #165c26;">$${price.toFixed(2)}/kg</span>
                     </div>
-                    <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 16px;">Fresh batch ready to ship. Available size: <strong>${qty}kg</strong>.</p>
                     <button onclick="selectProductForCheckout()" class="btn" style="background-color: #e8f5e9; color: #1b5e20;">Select for Purchase</button>
-                </div>
-            `;
+                </div>`;
         }
 
-        // STEP 2: Buyer selects item
         function selectProductForCheckout() {
             if (!activeProduct) return;
-
             const orderQty = parseInt(document.getElementById('order-qty').value) || 50;
             const cropCost = orderQty * activeProduct.price;
-            const deliveryFee = 15.00;
-            const totalEscrow = cropCost + deliveryFee;
+            const totalEscrow = cropCost + 15.00;
 
             document.getElementById('no-order-active').style.display = 'none';
             document.getElementById('order-action-area').style.display = 'block';
-
             document.getElementById('checkout-subtotal').innerText = `$${cropCost.toFixed(2)}`;
             document.getElementById('checkout-total').innerText = `$${totalEscrow.toFixed(2)}`;
         }
 
-        // STEP 3: Lock funds and alert driver
         async function placeOrder() {
             const orderQty = parseInt(document.getElementById('order-qty').value);
-            
-            if (orderQty > activeProduct.qty) {
-                alert("Order limit exceeded! Farmer doesn't have that much stock.");
-                return;
-            }
-
             const cropCost = orderQty * activeProduct.price;
-            const deliveryFee = 15.00;
-            const totalEscrowAmount = cropCost + deliveryFee;
+            const totalEscrowAmount = cropCost + 15.00;
 
             const orderPayload = {
                 crop: activeProduct.crop,
                 qty: orderQty,
                 crop_cost: cropCost,
-                delivery_fee: deliveryFee,
+                delivery_fee: 15.00,
                 total_escrow: totalEscrowAmount,
                 status: 'transit'
             };
 
-            // Write Order to database
             if (supabaseClient) {
                 const { data, error } = await supabaseClient
                     .from('orders')
                     .insert([orderPayload])
                     .select()
                     .single();
-
-                if (error) {
-                    alert("Database write error securing escrow: " + error.message);
-                    return;
-                }
+                if (error) return;
                 activeOrder = data;
             } else {
                 activeOrder = orderPayload;
                 renderOrderUI(activeOrder);
-                
-                // Backup manual simulation trigger
                 const truck = document.getElementById('map-truck');
                 truck.style.display = 'block';
                 setTimeout(() => { truck.style.left = "55%"; }, 100);
             }
-
-            alert(`Order Placed! Funds locked. Let's switch to the Driver Dispatch tab to run delivery.`);
             switchTab('driver');
         }
 
         function renderOrderUI(order) {
-            const cropCost = order.crop_cost !== undefined ? order.crop_cost : order.cropCost;
-            const deliveryFee = order.delivery_fee !== undefined ? order.delivery_fee : order.deliveryFee;
-            const totalEscrowAmount = order.total_escrow !== undefined ? order.total_escrow : order.totalEscrowAmount;
+            const cCost = order.crop_cost !== undefined ? order.crop_cost : order.cropCost;
+            const dFee = order.delivery_fee !== undefined ? order.delivery_fee : order.deliveryFee;
+            const tEscrow = order.total_escrow !== undefined ? order.total_escrow : order.totalEscrowAmount;
 
-            // Lock funds in the Ledger UI
-            document.getElementById('ledger-amount').innerText = `$${totalEscrowAmount.toFixed(2)}`;
-            document.getElementById('ledger-status-text').innerText = `🔐 ESCROW SECURED: $${totalEscrowAmount.toFixed(2)} ($${cropCost.toFixed(2)} crops + $${deliveryFee.toFixed(2)} logistics) is locked in escrow.`;
+            document.getElementById('ledger-amount').innerText = `$${tEscrow.toFixed(2)}`;
+            document.getElementById('ledger-status-text').innerText = `🔐 ESCROW SECURED: $${tEscrow.toFixed(2)} locked in vault.`;
             
-            updateSteps('step-held', '#f59e0b'); // Amber for locked funds
+            updateSteps('step-held', '#f59e0b');
 
-            // Populate Driver view
             document.getElementById('driver-jobs').innerHTML = `
-                <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 16px; border-radius: 8px; text-align: left;">
-                    <span style="background-color: #dbeafe; color: #1e40af; font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 9999px;">Route Assigned</span>
-                    <h4 style="margin: 8px 0 4px; font-size: 1rem;">🚚 Farm ➔ City Delivery</h4>
-                    <p style="font-size: 0.8rem; color: #4b5563;">Cargo: ${order.qty}kg of ${order.crop}</p>
-                    <p style="font-size: 0.85rem; font-weight: bold; color: #1e40af; margin-top: 8px;">Logistics payout: $${deliveryFee.toFixed(2)}</p>
-                </div>
-            `;
+                <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 16px; border-radius: 8px;">
+                    <h4>🚚 Farm ➔ City Delivery</h4>
+                    <p style="font-size: 0.85rem; font-weight: bold; color: #1e40af; margin-top: 8px;">Payout: $${dFee.toFixed(2)}</p>
+                </div>`;
             document.getElementById('delivery-btn').style.display = 'block';
-
-            // Clear active buyer view
             document.getElementById('order-action-area').style.display = 'none';
             document.getElementById('no-order-active').style.display = 'block';
-            document.getElementById('marketplace-display').innerHTML = `
-                <div class="placeholder-box" style="padding: 24px;">
-                    <p style="font-weight: bold; color: #d97706;">⚠️ Delivery Active</p>
-                    <p style="font-size: 0.8rem;">Switch to "Driver Dispatch" to track transit status.</p>
-                </div>
-            `;
 
-            updateSteps('step-transit', '#3b82f6'); // Blue for transit
+            updateSteps('step-transit', '#3b82f6');
         }
 
-        // STEP 4: Deliver and payout split
         async function completeDelivery() {
             if (!activeOrder) return;
-
-            // Sync status update to database if connected
             if (supabaseClient) {
-                const { error } = await supabaseClient
-                    .from('orders')
-                    .update({ status: 'released' })
-                    .eq('id', activeOrder.id);
-
-                if (error) {
-                    alert("Database error confirming order release: " + error.message);
-                    return;
-                }
+                await supabaseClient.from('orders').update({ status: 'released' }).eq('id', activeOrder.id);
             } else {
-                // Fallback offline execution handler
                 const truck = document.getElementById('map-truck');
                 truck.style.left = "65%";
                 setTimeout(() => { executeUIPayoutRelease(activeOrder); }, 600);
             }
         }
 
-        // Separate function to handle the math payout interface transformations cleanly
         function executeUIPayoutRelease(orderTarget) {
-            const cropCost = orderTarget.crop_cost !== undefined ? orderTarget.crop_cost : orderTarget.cropCost;
-            const deliveryFee = orderTarget.delivery_fee !== undefined ? orderTarget.delivery_fee : orderTarget.deliveryFee;
+            const cCost = orderTarget.crop_cost !== undefined ? orderTarget.crop_cost : orderTarget.cropCost;
+            const dFee = orderTarget.delivery_fee !== undefined ? orderTarget.delivery_fee : orderTarget.deliveryFee;
 
-            // Payout update split
-            wallets.farmer += cropCost;
-            wallets.driver += deliveryFee;
-
-            // Update UI balances
+            wallets.farmer += cCost;
+            wallets.driver += dFee;
             updateWalletUI();
 
-            // Clear Vault Balance
             document.getElementById('ledger-amount').innerText = "$0.00";
-            document.getElementById('ledger-status-text').innerText = `✅ ESCROW PAID OUT: $${cropCost.toFixed(2)} paid to Farmer, $${deliveryFee.toFixed(2)} paid to Driver.`;
+            document.getElementById('ledger-status-text').innerText = `Service complete. Escrow split executed cleanly.`;
+            updateSteps('step-released', '#10b981');
 
-            updateSteps('step-released', '#10b981'); // Green for payout released
-
-            // Reset driver job card
-            document.getElementById('driver-jobs').innerHTML = `
-                <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px; color: #15803d;">
-                    <p style="font-weight: bold;">Payout Complete!</p>
-                    <p style="font-size: 0.8rem;">Delivery fee ($${deliveryFee.toFixed(2)}) sent to your wallet.</p>
-                </div>
-            `;
+            document.getElementById('driver-jobs').innerHTML = `<div style="color: #15803d; font-weight: bold;">Payout Complete!</div>`;
             document.getElementById('delivery-btn').style.display = 'none';
             
-            // Reset map truck configuration
             const truck = document.getElementById('map-truck');
             truck.style.left = "65%";
             setTimeout(() => {
@@ -868,11 +688,9 @@
                 truck.style.left = "25%";
             }, 1000);
 
-            alert(`Success! The delivery is confirmed. Escrow split has distributed the funds instantly. check your wallets at the top bar!`);
-            
             activeProduct = null;
             activeOrder = null;
         }
     </script>
 </body>
-</html
+</html>
