@@ -1,11 +1,10 @@
-<!DOCTYPE html>
+<!<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgroLink - B2B Marketplace & Logistics</title>
     
-    <!-- 100% Offline Styles -->
     <style>
         * {
             box-sizing: border-box;
@@ -65,6 +64,33 @@
             color: white;
             font-weight: 600;
         }
+        .auth-bar {
+            background-color: #14532d;
+            color: white;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+        }
+        .auth-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .auth-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-auth-primary { background-color: #22c55e; color: #052e16; }
+        .btn-auth-secondary { background-color: transparent; color: white; border: 1px solid #4ade80; }
         .balance-bar {
             background-color: #f0fdf4;
             border-bottom: 1px solid #dcfce7;
@@ -79,9 +105,7 @@
             font-size: 0.875rem;
             font-weight: 500;
         }
-        .balance-item span {
-            font-weight: bold;
-        }
+        .balance-item span { font-weight: bold; }
         main {
             flex-grow: 1;
             max-width: 1200px;
@@ -89,21 +113,15 @@
             margin: 0 auto;
             padding: 24px 20px;
         }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         .grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 24px;
         }
         @media (min-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr 2fr;
-            }
+            .grid { grid-template-columns: 1fr 2fr; }
         }
         .card {
             background: white;
@@ -122,9 +140,7 @@
             font-size: 0.875rem;
             margin-bottom: 24px;
         }
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 16px; }
         label {
             display: block;
             font-size: 0.75rem;
@@ -152,21 +168,11 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        button.btn:hover {
-            background-color: #165c26;
-        }
-        button.btn-orange {
-            background-color: #f97316;
-        }
-        button.btn-orange:hover {
-            background-color: #ea580c;
-        }
-        button.btn-blue {
-            background-color: #2563eb;
-        }
-        button.btn-blue:hover {
-            background-color: #1d4ed8;
-        }
+        button.btn:hover { background-color: #165c26; }
+        button.btn-orange { background-color: #f97316; }
+        button.btn-orange:hover { background-color: #ea580c; }
+        button.btn-blue { background-color: #2563eb; }
+        button.btn-blue:hover { background-color: #1d4ed8; }
         .placeholder-box {
             border: 2px dashed #e5e7eb;
             border-radius: 12px;
@@ -180,10 +186,7 @@
             padding: 32px 20px;
             margin-top: 40px;
         }
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .footer-container { max-width: 1200px; margin: 0 auto; }
         .ledger-box {
             background-color: #1e293b;
             border: 1px solid #334155;
@@ -212,9 +215,7 @@
             gap: 16px;
         }
         @media (min-width: 768px) {
-            .steps-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
+            .steps-grid { grid-template-columns: repeat(4, 1fr); }
         }
         .step {
             background-color: #0f172a;
@@ -236,10 +237,7 @@
             align-items: center;
             justify-content: center;
         }
-        .map-node {
-            text-align: center;
-            z-index: 2;
-        }
+        .map-node { text-align: center; z-index: 2; }
         .node-icon {
             width: 48px;
             height: 48px;
@@ -274,9 +272,40 @@
             transform: translateY(-50%);
             z-index: 1;
         }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
+
+    <div class="auth-bar">
+        <div class="auth-container">
+            <span id="user-status-text">👤 Status: Guest Mode</span>
+            <div class="auth-btns" id="auth-btns-logged-out">
+                <button onclick="openAuthModal('login')" class="btn-sm btn-auth-secondary">Log In</button>
+                <button onclick="openAuthModal('signup')" class="btn-sm btn-auth-primary">Sign Up</button>
+            </div>
+            <div class="auth-btns" id="auth-btns-logged-in" style="display: none;">
+                <button onclick="handleLogout()" class="btn-sm btn-auth-secondary">Log Out</button>
+            </div>
+        </div>
+    </div>
 
     <nav>
         <div class="nav-container">
@@ -406,6 +435,23 @@
         </div>
     </main>
 
+    <!-- AUTHENTICATION MODAL -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 id="modal-title" style="margin-bottom: 16px;">Log In to AgroLink</h2>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="auth-email" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="auth-password" placeholder="••••••••">
+            </div>
+            <button id="auth-action-btn" onclick="executeAuthAction()" class="btn" style="margin-bottom: 8px;">Log In</button>
+            <button onclick="closeAuthModal()" class="btn-sm btn-auth-secondary" style="color: #6b7280; border-color: #d1d5db; width: 100%;">Cancel</button>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-container">
             <div class="ledger-box">
@@ -431,30 +477,92 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // ========================================================
-        // 🔑 CONFIGURATION: Connected directly to your database!
-        // ========================================================
         const SUPABASE_URL = "https://ifqynplwbopesnvlmppj.supabase.co"; 
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmcXlucGx3Ym9wZXNudmxtcHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMzcyOTcsImV4cCI6MjA5OTgxMzI5N30.zRVVYW9bJohjjchyRbpIVKV26NoZIpO4mqDRsujHxqw";
         
-        let supabaseClient = null;
-
-        if (SUPABASE_URL !== "https://your-project-id.supabase.co" && SUPABASE_ANON_KEY !== "your-anon-public-key") {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log("⚡ Supabase Initialized Successfully!");
-        }
+        let supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+        let currentAuthMode = 'login';
 
         let activeProduct = null;
         let activeOrder = null;
         let wallets = { farmer: 0.00, driver: 0.00 };
 
         window.addEventListener('DOMContentLoaded', async () => {
-            if (supabaseClient) {
-                await fetchLatestState();
-                setupRealtimeListeners();
-            }
+            await checkAuthSession();
+            await fetchLatestState();
+            setupRealtimeListeners();
         });
 
+        // --- AUTHENTICATION FUNCTIONS ---
+        async function checkAuthSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            updateUserUI(session?.user || null);
+
+            supabaseClient.auth.onAuthStateChange((_event, session) => {
+                updateUserUI(session?.user || null);
+            });
+        }
+
+        function updateUserUI(user) {
+            currentUser = user;
+            const statusText = document.getElementById('user-status-text');
+            const loggedOutBtns = document.getElementById('auth-btns-logged-out');
+            const loggedInBtns = document.getElementById('auth-btns-logged-in');
+
+            if (user) {
+                statusText.innerText = `👤 Logged in as: ${user.email}`;
+                loggedOutBtns.style.display = 'none';
+                loggedInBtns.style.display = 'flex';
+            } else {
+                statusText.innerText = `👤 Status: Guest Mode`;
+                loggedOutBtns.style.display = 'flex';
+                loggedInBtns.style.display = 'none';
+            }
+        }
+
+        function openAuthModal(mode) {
+            currentAuthMode = mode;
+            document.getElementById('modal-title').innerText = mode === 'signup' ? 'Create AgroLink Account' : 'Log In to AgroLink';
+            document.getElementById('auth-action-btn').innerText = mode === 'signup' ? 'Sign Up' : 'Log In';
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+        }
+
+        async function executeAuthAction() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            if (currentAuthMode === 'signup') {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) alert("Sign up error: " + error.message);
+                else {
+                    alert("Account created successfully!");
+                    closeAuthModal();
+                }
+            } else {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) alert("Log in error: " + error.message);
+                else {
+                    closeAuthModal();
+                }
+            }
+        }
+
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            alert("Logged out successfully!");
+        }
+
+        // --- DATABASE & APPLICATION LOGIC ---
         async function fetchLatestState() {
             try {
                 const { data: listing } = await supabaseClient
@@ -545,15 +653,21 @@
 
             if (!crop || isNaN(price) || isNaN(qty)) return;
 
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient
-                    .from('listings')
-                    .insert([{ crop, price, qty }])
-                    .select()
-                    .single();
-                if (error) return;
-                activeProduct = data;
+            const payload = { crop, price, qty };
+            if (currentUser) {
+                payload.user_id = currentUser.id;
             }
+
+            const { data, error } = await supabaseClient
+                .from('listings')
+                .insert([payload])
+                .select()
+                .single();
+            if (error) {
+                alert("Error listing product: " + error.message);
+                return;
+            }
+            activeProduct = data;
             switchTab('buyer');
             selectProductForCheckout();
         }
@@ -607,22 +721,27 @@
                 status: 'transit'
             };
 
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient
-                    .from('orders')
-                    .insert([orderPayload])
-                    .select()
-                    .single();
-                if (error) return;
-                activeOrder = data;
+            if (currentUser) {
+                orderPayload.buyer_id = currentUser.id;
             }
+
+            const { data, error } = await supabaseClient
+                .from('orders')
+                .insert([orderPayload])
+                .select()
+                .single();
+
+            if (error) {
+                alert("Error placing order: " + error.message);
+                return;
+            }
+            activeOrder = data;
             switchTab('driver');
         }
 
         function renderOrderUI(order) {
-            const cCost = order.crop_cost !== undefined ? order.crop_cost : order.cropCost;
-            const dFee = order.delivery_fee !== undefined ? order.delivery_fee : order.deliveryFee;
             const tEscrow = order.total_escrow !== undefined ? order.total_escrow : order.totalEscrowAmount;
+            const dFee = order.delivery_fee !== undefined ? order.delivery_fee : order.deliveryFee;
 
             document.getElementById('ledger-amount').innerText = `$${tEscrow.toFixed(2)}`;
             document.getElementById('ledger-status-text').innerText = `🔐 ESCROW SECURED: $${tEscrow.toFixed(2)} locked in vault.`;
@@ -643,9 +762,7 @@
 
         async function completeDelivery() {
             if (!activeOrder) return;
-            if (supabaseClient) {
-                await supabaseClient.from('orders').update({ status: 'released' }).eq('id', activeOrder.id);
-            }
+            await supabaseClient.from('orders').update({ status: 'released' }).eq('id', activeOrder.id);
         }
 
         function executeUIPayoutRelease(orderTarget) {
