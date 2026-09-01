@@ -1,4 +1,4 @@
-<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -149,7 +149,7 @@
             color: #6b7280;
             margin-bottom: 6px;
         }
-        input {
+        input, select {
             width: 100%;
             padding: 10px;
             border: 1px solid #d1d5db;
@@ -326,7 +326,6 @@
     </div>
 
     <main>
-        <!-- 1. FARMER VIEW PANEL -->
         <div id="view-farmer" class="tab-content active">
             <div class="grid">
                 <div class="card">
@@ -357,7 +356,6 @@
             </div>
         </div>
 
-        <!-- 2. BUYER VIEW PANEL -->
         <div id="view-buyer" class="tab-content">
             <div class="grid">
                 <div class="card">
@@ -402,7 +400,6 @@
             </div>
         </div>
 
-        <!-- 3. DRIVER VIEW PANEL -->
         <div id="view-driver" class="tab-content">
             <div class="grid">
                 <div class="card">
@@ -435,7 +432,6 @@
         </div>
     </main>
 
-    <!-- AUTHENTICATION MODAL -->
     <div id="auth-modal" class="modal-overlay">
         <div class="modal">
             <h2 id="modal-title" style="margin-bottom: 16px;">Log In to AgroLink</h2>
@@ -446,6 +442,14 @@
             <div class="form-group">
                 <label>Password</label>
                 <input type="password" id="auth-password" placeholder="••••••••">
+            </div>
+            <div class="form-group" id="role-select-group" style="display: none;">
+                <label>Select Your Primary Role</label>
+                <select id="auth-role">
+                    <option value="farmer">👨‍🌾 Farmer</option>
+                    <option value="buyer">🛒 Produce Buyer</option>
+                    <option value="driver">🚛 Delivery Driver</option>
+                </select>
             </div>
             <button id="auth-action-btn" onclick="executeAuthAction()" class="btn" style="margin-bottom: 8px;">Log In</button>
             <button onclick="closeAuthModal()" class="btn-sm btn-auth-secondary" style="color: #6b7280; border-color: #d1d5db; width: 100%;">Cancel</button>
@@ -473,323 +477,8 @@
         </div>
     </footer>
 
-    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
         const SUPABASE_URL = "https://ifqynplwbopesnvlmppj.supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmcXlucGx3Ym9wZXNudmxtcHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMzcyOTcsImV4cCI6MjA5OTgxMzI5N30.zRVVYW9bJohjjchyRbpIVKV26NoZIpO4mqDRsujHxqw";
-        
-        let supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let currentUser = null;
-        let currentAuthMode = 'login';
-
-        let activeProduct = null;
-        let activeOrder = null;
-        let wallets = { farmer: 0.00, driver: 0.00 };
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            await checkAuthSession();
-            await fetchLatestState();
-            setupRealtimeListeners();
-        });
-
-        // --- AUTHENTICATION FUNCTIONS ---
-        async function checkAuthSession() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            updateUserUI(session?.user || null);
-
-            supabaseClient.auth.onAuthStateChange((_event, session) => {
-                updateUserUI(session?.user || null);
-            });
-        }
-
-        function updateUserUI(user) {
-            currentUser = user;
-            const statusText = document.getElementById('user-status-text');
-            const loggedOutBtns = document.getElementById('auth-btns-logged-out');
-            const loggedInBtns = document.getElementById('auth-btns-logged-in');
-
-            if (user) {
-                statusText.innerText = `👤 Logged in as: ${user.email}`;
-                loggedOutBtns.style.display = 'none';
-                loggedInBtns.style.display = 'flex';
-            } else {
-                statusText.innerText = `👤 Status: Guest Mode`;
-                loggedOutBtns.style.display = 'flex';
-                loggedInBtns.style.display = 'none';
-            }
-        }
-
-        function openAuthModal(mode) {
-            currentAuthMode = mode;
-            document.getElementById('modal-title').innerText = mode === 'signup' ? 'Create AgroLink Account' : 'Log In to AgroLink';
-            document.getElementById('auth-action-btn').innerText = mode === 'signup' ? 'Sign Up' : 'Log In';
-            document.getElementById('auth-modal').style.display = 'flex';
-        }
-
-        function closeAuthModal() {
-            document.getElementById('auth-modal').style.display = 'none';
-        }
-
-        async function executeAuthAction() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-
-            if (!email || !password) {
-                alert("Please enter both email and password.");
-                return;
-            }
-
-            if (currentAuthMode === 'signup') {
-                const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) alert("Sign up error: " + error.message);
-                else {
-                    alert("Account created successfully!");
-                    closeAuthModal();
-                }
-            } else {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) alert("Log in error: " + error.message);
-                else {
-                    closeAuthModal();
-                }
-            }
-        }
-
-        async function handleLogout() {
-            await supabaseClient.auth.signOut();
-            alert("Logged out successfully!");
-        }
-
-        // --- DATABASE & APPLICATION LOGIC ---
-        async function fetchLatestState() {
-            try {
-                const { data: listing } = await supabaseClient
-                    .from('listings')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
-
-                if (listing) {
-                    activeProduct = listing;
-                    renderProductUI(listing.crop, listing.price, listing.qty);
-                }
-
-                const { data: order } = await supabaseClient
-                    .from('orders')
-                    .select('*')
-                    .eq('status', 'transit')
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
-
-                if (order) {
-                    activeOrder = order;
-                    renderOrderUI(order);
-                }
-            } catch (err) {
-                console.error("Error reading database states:", err);
-            }
-        }
-
-        function setupRealtimeListeners() {
-            supabaseClient
-                .channel('schema-db-changes')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'listings' }, payload => {
-                    activeProduct = payload.new;
-                    renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
-                })
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
-                    activeOrder = payload.new;
-                    renderOrderUI(activeOrder);
-                    const truck = document.getElementById('map-truck');
-                    truck.style.display = 'block';
-                    setTimeout(() => { truck.style.left = "55%"; }, 100);
-                })
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
-                    if (payload.new.status === 'released') {
-                        executeUIPayoutRelease(payload.new);
-                    }
-                })
-                .subscribe();
-        }
-
-        function switchTab(tabName) {
-            const views = document.querySelectorAll('.tab-content');
-            views.forEach(view => view.classList.remove('active'));
-            const targetView = document.getElementById('view-' + tabName);
-            if (targetView) targetView.classList.add('active');
-
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById('tab-btn-' + tabName);
-            if (activeBtn) activeBtn.classList.add('active');
-        }
-
-        function updateSteps(activeStepId, color) {
-            const steps = document.querySelectorAll('.step');
-            steps.forEach(step => {
-                step.style.borderLeftColor = "#64748b";
-                step.style.color = "#94a3b8";
-            });
-            const currentStep = document.getElementById(activeStepId);
-            if (currentStep) {
-                currentStep.style.borderLeftColor = color;
-                currentStep.style.color = "white";
-            }
-        }
-
-        function updateWalletUI() {
-            document.getElementById('farmer-wallet').innerText = `$${wallets.farmer.toFixed(2)}`;
-            document.getElementById('driver-wallet').innerText = `$${wallets.driver.toFixed(2)}`;
-        }
-
-        async function listProduct() {
-            const crop = document.getElementById('crop-type').value;
-            const price = parseFloat(document.getElementById('crop-price').value);
-            const qty = parseInt(document.getElementById('crop-qty').value);
-
-            if (!crop || isNaN(price) || isNaN(qty)) return;
-
-            const payload = { crop, price, qty };
-            if (currentUser) {
-                payload.user_id = currentUser.id;
-            }
-
-            const { data, error } = await supabaseClient
-                .from('listings')
-                .insert([payload])
-                .select()
-                .single();
-            if (error) {
-                alert("Error listing product: " + error.message);
-                return;
-            }
-            activeProduct = data;
-            switchTab('buyer');
-            selectProductForCheckout();
-        }
-
-        function renderProductUI(crop, price, qty) {
-            document.getElementById('storefront-list').innerHTML = `
-                <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <span style="color: #15803d; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">Active Listing</span>
-                        <h3 style="font-size: 1.5rem; color: #165c26; margin: 4px 0;">🌾 ${crop}</h3>
-                        <p style="color: #6b7280; font-size: 0.85rem;">Stock: <strong>${qty} kg</strong></p>
-                    </div>
-                    <div style="text-align: right;">
-                        <span style="font-size: 2rem; font-weight: 900; color: #165c26;">$${price.toFixed(2)}</span>
-                    </div>
-                </div>`;
-
-            document.getElementById('marketplace-display').innerHTML = `
-                <div style="border: 1px solid #e5e7eb; background: white; padding: 20px; border-radius: 12px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                        <div><h3>${crop}</h3></div>
-                        <span style="font-size: 1.25rem; font-weight: bold; color: #165c26;">$${price.toFixed(2)}/kg</span>
-                    </div>
-                    <button onclick="selectProductForCheckout()" class="btn" style="background-color: #e8f5e9; color: #1b5e20;">Select for Purchase</button>
-                </div>`;
-        }
-
-        function selectProductForCheckout() {
-            if (!activeProduct) return;
-            const orderQty = parseInt(document.getElementById('order-qty').value) || 50;
-            const cropCost = orderQty * activeProduct.price;
-            const totalEscrow = cropCost + 15.00;
-
-            document.getElementById('no-order-active').style.display = 'none';
-            document.getElementById('order-action-area').style.display = 'block';
-            document.getElementById('checkout-subtotal').innerText = `$${cropCost.toFixed(2)}`;
-            document.getElementById('checkout-total').innerText = `$${totalEscrow.toFixed(2)}`;
-        }
-
-        async function placeOrder() {
-            const orderQty = parseInt(document.getElementById('order-qty').value);
-            const cropCost = orderQty * activeProduct.price;
-            const totalEscrowAmount = cropCost + 15.00;
-
-            const orderPayload = {
-                crop: activeProduct.crop,
-                qty: orderQty,
-                crop_cost: cropCost,
-                delivery_fee: 15.00,
-                total_escrow: totalEscrowAmount,
-                status: 'transit'
-            };
-
-            if (currentUser) {
-                orderPayload.buyer_id = currentUser.id;
-            }
-
-            const { data, error } = await supabaseClient
-                .from('orders')
-                .insert([orderPayload])
-                .select()
-                .single();
-
-            if (error) {
-                alert("Error placing order: " + error.message);
-                return;
-            }
-            activeOrder = data;
-            switchTab('driver');
-        }
-
-        function renderOrderUI(order) {
-            const tEscrow = order.total_escrow !== undefined ? order.total_escrow : order.totalEscrowAmount;
-            const dFee = order.delivery_fee !== undefined ? order.delivery_fee : order.deliveryFee;
-
-            document.getElementById('ledger-amount').innerText = `$${tEscrow.toFixed(2)}`;
-            document.getElementById('ledger-status-text').innerText = `🔐 ESCROW SECURED: $${tEscrow.toFixed(2)} locked in vault.`;
-            
-            updateSteps('step-held', '#f59e0b');
-
-            document.getElementById('driver-jobs').innerHTML = `
-                <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 16px; border-radius: 8px;">
-                    <h4>🚚 Farm ➔ City Delivery</h4>
-                    <p style="font-size: 0.85rem; font-weight: bold; color: #1e40af; margin-top: 8px;">Payout: $${dFee.toFixed(2)}</p>
-                </div>`;
-            document.getElementById('delivery-btn').style.display = 'block';
-            document.getElementById('order-action-area').style.display = 'none';
-            document.getElementById('no-order-active').style.display = 'block';
-
-            updateSteps('step-transit', '#3b82f6');
-        }
-
-        async function completeDelivery() {
-            if (!activeOrder) return;
-            await supabaseClient.from('orders').update({ status: 'released' }).eq('id', activeOrder.id);
-        }
-
-        function executeUIPayoutRelease(orderTarget) {
-            const cCost = orderTarget.crop_cost !== undefined ? orderTarget.crop_cost : orderTarget.cropCost;
-            const dFee = orderTarget.delivery_fee !== undefined ? orderTarget.delivery_fee : orderTarget.deliveryFee;
-
-            wallets.farmer += cCost;
-            wallets.driver += dFee;
-            updateWalletUI();
-
-            document.getElementById('ledger-amount').innerText = "$0.00";
-            document.getElementById('ledger-status-text').innerText = `Service complete. Escrow split executed cleanly.`;
-            updateSteps('step-released', '#10b981');
-
-            document.getElementById('driver-jobs').innerHTML = `<div style="color: #15803d; font-weight: bold;">Payout Complete!</div>`;
-            document.getElementById('delivery-btn').style.display = 'none';
-            
-            const truck = document.getElementById('map-truck');
-            truck.style.left = "65%";
-            setTimeout(() => {
-                truck.style.display = 'none';
-                truck.style.left = "25%";
-            }, 1000);
-
-            activeProduct = null;
-            activeOrder = null;
-        }
-    </script>
-</body>
-</html>
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmcXlucGx3Ym9wZXNudmxtcHBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMzcyOTcsImV4cCI6MjA5OTgxMzI5
