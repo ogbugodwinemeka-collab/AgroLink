@@ -114,7 +114,7 @@
             box-shadow: 0 2px 8px rgba(21, 128, 61, 0.4);
         }
 
-        /* Wallet Bar */
+        /* Balance Bar */
         .balance-bar {
             background: #ffffff;
             border-bottom: 1px solid var(--border-color);
@@ -232,10 +232,7 @@
         }
 
         /* Table Design */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
+        .table-responsive { width: 100%; overflow-x: auto; }
         table.history-table {
             width: 100%;
             border-collapse: collapse;
@@ -299,10 +296,7 @@
             align-items: center;
             gap: 6px;
         }
-        .btn-export:hover {
-            background-color: #e2e8f0;
-            color: var(--text-dark);
-        }
+        .btn-export:hover { background-color: #e2e8f0; color: var(--text-dark); }
         button.btn {
             width: 100%;
             background-color: var(--primary);
@@ -316,28 +310,19 @@
             box-shadow: 0 2px 8px rgba(21, 128, 61, 0.25);
             transition: all 0.2s ease;
         }
-        button.btn:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-1px);
-        }
+        button.btn:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
         button.btn:disabled {
             background-color: #cbd5e1 !important;
             cursor: not-allowed;
             transform: none !important;
             box-shadow: none !important;
         }
-        button.btn-orange {
-            background-color: var(--accent-orange);
-            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
-        }
+        button.btn-orange { background-color: var(--accent-orange); box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25); }
         button.btn-orange:hover { background-color: var(--accent-orange-hover); }
-        button.btn-blue {
-            background-color: var(--accent-blue);
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
-        }
+        button.btn-blue { background-color: var(--accent-blue); box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25); }
         button.btn-blue:hover { background-color: var(--accent-blue-hover); }
 
-        /* Toast Notification Styling */
+        /* Toast Notifications */
         #toast-container {
             position: fixed;
             bottom: 24px;
@@ -365,16 +350,10 @@
         .toast.toast-info { border-left-color: #3b82f6; }
         .toast.toast-warning { border-left-color: #f59e0b; }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(10px); }
-        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
 
-        /* Map Styling */
+        /* Advanced Visualizer Styling */
         .placeholder-box {
             border: 2px dashed #cbd5e1;
             background-color: #f8fafc;
@@ -384,50 +363,132 @@
             color: var(--text-muted);
         }
         .map-box {
-            background-color: #f1f5f9;
+            background-color: #0f172a;
             border: 1px solid var(--border-color);
-            height: 300px;
-            border-radius: 12px;
+            height: 320px;
+            border-radius: 14px;
             position: relative;
             overflow: hidden;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 18px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
         }
-        .map-node { text-align: center; z-index: 2; }
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 5;
+        }
+        .map-status-pill {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            color: #38bdf8;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #38bdf8;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #38bdf8;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+
+        .route-track-container {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: center;
+        }
+        .map-node { text-align: center; z-index: 3; }
         .node-icon {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 8px;
-            font-size: 1.5rem;
+            margin: 0 auto 6px;
+            font-size: 1.3rem;
             color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #334155;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .node-green { background-color: #165c26; }
-        .node-orange { background-color: #ea580c; }
-        .map-truck {
+        .node-green { background-color: #15803d; border-color: #4ade80; }
+        .node-orange { background-color: #ea580c; border-color: #fb923c; }
+        
+        .map-line-bg {
             position: absolute;
-            font-size: 2rem;
-            transition: left 3s ease-in-out;
-            z-index: 3;
-            display: none;
-            left: 25%;
-            top: 50%;
-            transform: scaleX(-1) translateY(-50%);
-        }
-        .map-line {
-            position: absolute;
-            width: 50%;
-            height: 2px;
-            border-top: 2px dashed #93c5fd;
-            left: 25%;
-            top: 50%;
-            transform: translateY(-50%);
+            width: 70%;
+            height: 4px;
+            background: #334155;
+            left: 15%;
+            top: 42px;
             z-index: 1;
+            border-radius: 2px;
+        }
+        .map-line-progress {
+            position: absolute;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, #22c55e, #38bdf8);
+            left: 15%;
+            top: 42px;
+            z-index: 2;
+            border-radius: 2px;
+            transition: width 0.5s linear;
+        }
+        .map-truck-icon {
+            position: absolute;
+            font-size: 1.8rem;
+            left: 15%;
+            top: 24px;
+            z-index: 4;
+            transform: translateX(-50%);
+            transition: left 0.5s linear;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+        }
+        .gps-coords-bar {
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid #334155;
+            padding: 10px 14px;
+            margin: -18px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            z-index: 5;
+        }
+
+        /* Modal Overlays */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 460px;
+            box-shadow: var(--shadow-lg);
         }
 
         footer {
@@ -477,25 +538,6 @@
             font-size: 0.875rem;
             border-left: 4px solid #4b5563;
             font-weight: 600;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal {
-            background: #ffffff;
-            padding: 32px;
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 460px;
-            box-shadow: var(--shadow-lg);
         }
     </style>
 </head>
@@ -619,23 +661,50 @@
                     <div id="driver-jobs" class="placeholder-box" style="padding: 24px;">
                         <p style="font-weight: 500;">Awaiting matching order...</p>
                     </div>
-                    <button id="delivery-btn" onclick="completeDelivery()" class="btn btn-blue" style="display: none; margin-top: 16px;">
-                        Confirm Safe Delivery ✅
-                    </button>
+                    
+                    <div id="driver-controls" style="display: none; margin-top: 16px;">
+                        <button id="pickup-btn" onclick="pickupDelivery()" class="btn btn-orange" style="margin-bottom: 8px;">
+                            Confirm Produce Picked Up 📦
+                        </button>
+                        <button id="delivery-btn" onclick="completeDelivery()" class="btn btn-blue" style="display: none;">
+                            Confirm Safe Delivery ✅
+                        </button>
+                    </div>
                 </div>
+
                 <div class="card">
-                    <h2>🗺️ GPS Routing Simulation</h2>
-                    <p class="subtitle">Real-time status tracking.</p>
+                    <h2>🗺️ Logistics Control Center</h2>
+                    <p class="subtitle">Real-time GPS status and route visualizer.</p>
+                    
                     <div class="map-box">
-                        <div class="map-node" style="position: absolute; left: 15%;">
-                            <div class="node-icon node-green">🌾</div>
-                            <span style="font-size: 0.75rem; font-weight: bold; color: var(--text-dark);">Green Valley Farm</span>
+                        <div class="map-header">
+                            <span style="color: #cbd5e1; font-size: 0.8rem; font-weight: 700;">ROUTE: DISPATCH ID #<span id="map-dispatch-id">----</span></span>
+                            <div class="map-status-pill">
+                                <div class="pulse-dot"></div>
+                                <span id="map-status-text">SYSTEM STANDBY</span>
+                            </div>
                         </div>
-                        <div class="map-line"></div>
-                        <div id="map-truck" class="map-truck">🚚</div>
-                        <div class="map-node" style="position: absolute; right: 15%;">
-                            <div class="node-icon node-orange">🏬</div>
-                            <span style="font-size: 0.75rem; font-weight: bold; color: var(--text-dark);">Urban Market</span>
+
+                        <div class="route-track-container">
+                            <div class="map-node" style="position: absolute; left: 15%;">
+                                <div class="node-icon node-green">🌾</div>
+                                <span style="font-size: 0.75rem; font-weight: bold; color: #f8fafc;">Farm Depot</span>
+                            </div>
+                            
+                            <div class="map-line-bg"></div>
+                            <div id="map-progress-bar" class="map-line-progress"></div>
+                            <div id="map-truck" class="map-truck-icon">🚚</div>
+                            
+                            <div class="map-node" style="position: absolute; right: 15%;">
+                                <div class="node-icon node-orange">🏬</div>
+                                <span style="font-size: 0.75rem; font-weight: bold; color: #f8fafc;">Buyer Hub</span>
+                            </div>
+                        </div>
+
+                        <div class="gps-coords-bar">
+                            <span>GPS LAT: <strong id="gps-lat">07.3775° N</strong></span>
+                            <span>SPEED: <strong id="gps-speed">0 km/h</strong></span>
+                            <span>LONG: <strong id="gps-long">03.9470° E</strong></span>
                         </div>
                     </div>
                 </div>
@@ -761,6 +830,7 @@
         let activeOrder = null;
         let cachedOrdersHistory = [];
         let wallets = { farmer: 0.00, driver: 0.00 };
+        let simulatedTransitTimer = null;
 
         window.addEventListener('DOMContentLoaded', async () => {
             await checkAuthSession();
@@ -783,21 +853,13 @@
             toast.innerHTML = `<span>${icon}</span> <div>${message}</div>`;
             container.appendChild(toast);
 
-            setTimeout(() => {
-                toast.remove();
-            }, 4000);
+            setTimeout(() => { toast.remove(); }, 4000);
         }
 
-        // --- PROFILE MODAL & MANAGEMENT ---
+        // --- PROFILE & USER MANAGEMENT ---
         async function fetchUserProfile() {
             if (!currentUser) return;
-
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('id', currentUser.id)
-                .maybeSingle();
-
+            const { data } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
             if (data) {
                 userProfileData = data;
                 document.getElementById('prof-fullname').value = data.full_name || '';
@@ -808,11 +870,7 @@
         }
 
         function openProfileModal() {
-            if (!currentUser) {
-                openAuthModal('login');
-                return;
-            }
-
+            if (!currentUser) { openAuthModal('login'); return; }
             const userRole = currentUser.user_metadata?.user_role?.toLowerCase() || 'buyer';
             const addressLabel = document.getElementById('prof-address-label');
             const vehicleGroup = document.getElementById('prof-vehicle-group');
@@ -827,35 +885,23 @@
                 addressLabel.innerText = "Base Location / Station";
                 vehicleGroup.style.display = 'block';
             }
-
             document.getElementById('profile-modal').style.display = 'flex';
         }
 
-        function closeProfileModal() {
-            document.getElementById('profile-modal').style.display = 'none';
-        }
+        function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
 
         async function saveUserProfile() {
             if (!currentUser) return;
-
-            const fullName = document.getElementById('prof-fullname').value.trim();
-            const phone = document.getElementById('prof-phone').value.trim();
-            const address = document.getElementById('prof-address').value.trim();
-            const vehicle = document.getElementById('prof-vehicle').value.trim();
-
             const profilePayload = {
                 id: currentUser.id,
-                full_name: fullName,
-                phone: phone,
-                location_address: address,
-                vehicle_info: vehicle,
+                full_name: document.getElementById('prof-fullname').value.trim(),
+                phone: document.getElementById('prof-phone').value.trim(),
+                location_address: document.getElementById('prof-address').value.trim(),
+                vehicle_info: document.getElementById('prof-vehicle').value.trim(),
                 updated_at: new Date().toISOString()
             };
 
-            const { error } = await supabaseClient
-                .from('profiles')
-                .upsert(profilePayload);
-
+            const { error } = await supabaseClient.from('profiles').upsert(profilePayload);
             if (error) {
                 showToast("Profile update error: " + error.message, "warning");
             } else {
@@ -865,19 +911,17 @@
             }
         }
 
-        // --- CSV EXPORT LOGIC ---
+        // --- CSV EXPORT ---
         function exportLedgerToCSV() {
             if (!cachedOrdersHistory || cachedOrdersHistory.length === 0) {
                 showToast("No transactions available to export.", "warning");
                 return;
             }
-
             const headers = ["ID", "Crop", "Quantity (kg)", "Crop Cost ($)", "Delivery Fee ($)", "Total Escrow ($)", "Status", "Created At"];
-            const csvRows = [];
-            csvRows.push(headers.join(","));
+            const csvRows = [headers.join(",")];
 
             cachedOrdersHistory.forEach(ord => {
-                const row = [
+                csvRows.push([
                     ord.id || "",
                     `"${ord.crop || ""}"`,
                     ord.qty || 0,
@@ -886,14 +930,11 @@
                     parseFloat(ord.total_escrow || 0).toFixed(2),
                     `"${ord.status || ""}"`,
                     `"${ord.created_at || new Date().toISOString()}"`
-                ];
-                csvRows.push(row.join(","));
+                ].join(","));
             });
 
-            const csvString = csvRows.join("\n");
-            const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+            const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
             const url = URL.createObjectURL(blob);
-            
             const downloadLink = document.createElement("a");
             downloadLink.href = url;
             downloadLink.setAttribute("download", `agrolink_ledger_${new Date().toISOString().slice(0, 10)}.csv`);
@@ -904,10 +945,9 @@
             showToast("Ledger CSV downloaded successfully!", "success");
         }
 
-        // --- INPUT GUARDRAILS & STOCK VALIDATION ---
+        // --- INPUT VALIDATION ---
         function validateOrderQuantity() {
             if (!activeProduct) return false;
-
             const orderQtyInput = document.getElementById('order-qty');
             const placeOrderBtn = document.getElementById('place-order-btn');
             const stockErrorMsg = document.getElementById('stock-error-msg');
@@ -919,7 +959,6 @@
                 placeOrderBtn.disabled = true;
                 return false;
             }
-
             if (orderQty > activeProduct.qty) {
                 stockErrorMsg.innerText = `Requested quantity exceeds available stock (${activeProduct.qty} kg)!`;
                 stockErrorMsg.style.display = 'block';
@@ -929,23 +968,17 @@
 
             stockErrorMsg.style.display = 'none';
             placeOrderBtn.disabled = false;
-
             const cropCost = orderQty * activeProduct.price;
-            const totalEscrow = cropCost + 15.00;
-
             document.getElementById('checkout-subtotal').innerText = `$${cropCost.toFixed(2)}`;
-            document.getElementById('checkout-total').innerText = `$${totalEscrow.toFixed(2)}`;
+            document.getElementById('checkout-total').innerText = `$${(cropCost + 15.00).toFixed(2)}`;
             return true;
         }
 
-        // --- AUTHENTICATION & ROLE-BASED UI FILTERING ---
+        // --- AUTH & USER INTERFACE ---
         async function checkAuthSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             updateUserUI(session?.user || null);
-
-            supabaseClient.auth.onAuthStateChange((_event, session) => {
-                updateUserUI(session?.user || null);
-            });
+            supabaseClient.auth.onAuthStateChange((_event, session) => { updateUserUI(session?.user || null); });
         }
 
         async function updateUserUI(user) {
@@ -966,36 +999,25 @@
                 loggedInBtns.style.display = 'flex';
 
                 if (userRole === 'farmer') {
-                    farmerTab.style.display = 'block';
-                    buyerTab.style.display = 'none';
-                    driverTab.style.display = 'none';
+                    farmerTab.style.display = 'block'; buyerTab.style.display = 'none'; driverTab.style.display = 'none';
                     switchTab('farmer');
                 } else if (userRole === 'buyer') {
-                    farmerTab.style.display = 'none';
-                    buyerTab.style.display = 'block';
-                    driverTab.style.display = 'none';
+                    farmerTab.style.display = 'none'; buyerTab.style.display = 'block'; driverTab.style.display = 'none';
                     switchTab('buyer');
                 } else if (userRole === 'driver') {
-                    farmerTab.style.display = 'none';
-                    buyerTab.style.display = 'none';
-                    driverTab.style.display = 'block';
+                    farmerTab.style.display = 'none'; buyerTab.style.display = 'none'; driverTab.style.display = 'block';
                     switchTab('driver');
                 }
             } else {
                 statusText.innerText = `👤 Status: Guest Mode`;
-                loggedOutBtns.style.display = 'flex';
-                loggedInBtns.style.display = 'none';
-
-                farmerTab.style.display = 'block';
-                buyerTab.style.display = 'block';
-                driverTab.style.display = 'block';
+                loggedOutBtns.style.display = 'flex'; loggedInBtns.style.display = 'none';
+                farmerTab.style.display = 'block'; buyerTab.style.display = 'block'; driverTab.style.display = 'block';
             }
         }
 
         function openAuthModal(mode) {
             currentAuthMode = mode;
             const roleGroup = document.getElementById('role-select-group');
-            
             if (mode === 'signup') {
                 document.getElementById('modal-title').innerText = 'Create AgroLink Account';
                 document.getElementById('auth-action-btn').innerText = 'Sign Up';
@@ -1008,40 +1030,23 @@
             document.getElementById('auth-modal').style.display = 'flex';
         }
 
-        function closeAuthModal() {
-            document.getElementById('auth-modal').style.display = 'none';
-        }
+        function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
 
         async function executeAuthAction() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             const role = document.getElementById('auth-role').value;
 
-            if (!email || !password) {
-                showToast("Please enter both email and password.", "warning");
-                return;
-            }
+            if (!email || !password) { showToast("Please enter both email and password.", "warning"); return; }
 
             if (currentAuthMode === 'signup') {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email,
-                    password,
-                    options: { data: { user_role: role } }
-                });
-                if (error) {
-                    showToast("Sign up error: " + error.message, "warning");
-                } else {
-                    showToast(`Account created as ${role.toUpperCase()}!`, "success");
-                    closeAuthModal();
-                }
+                const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { user_role: role } } });
+                if (error) { showToast("Sign up error: " + error.message, "warning"); } 
+                else { showToast(`Account created as ${role.toUpperCase()}!`, "success"); closeAuthModal(); }
             } else {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) {
-                    showToast("Log in error: " + error.message, "warning");
-                } else {
-                    showToast("Welcome back!", "success");
-                    closeAuthModal();
-                }
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) { showToast("Log in error: " + error.message, "warning"); } 
+                else { showToast("Welcome back!", "success"); closeAuthModal(); }
             }
         }
 
@@ -1051,14 +1056,10 @@
             showToast("Logged out successfully!", "info");
         }
 
-        // --- ORDER HISTORY TABLE LOGIC ---
+        // --- ORDER HISTORY LEDGER ---
         async function loadOrderHistory() {
-            const { data: history, error } = await supabaseClient
-                .from('orders')
-                .select('*')
-                .order('id', { ascending: false });
-
-            if (error || !history || history.length === 0) return;
+            const { data: history } = await supabaseClient.from('orders').select('*').order('id', { ascending: false });
+            if (!history || history.length === 0) return;
 
             cachedOrdersHistory = history;
             const tbody = document.getElementById('history-table-body');
@@ -1066,7 +1067,7 @@
 
             history.forEach(ord => {
                 const badgeClass = ord.status === 'released' ? 'badge-released' : 'badge-transit';
-                const statusLabel = ord.status === 'released' ? 'RELEASED ✅' : 'IN TRANSIT 🚚';
+                const statusLabel = ord.status === 'released' ? 'RELEASED ✅' : (ord.status === 'picked_up' ? 'IN TRANSIT 🚚' : 'DRIVER DISPATCHED 📍');
 
                 tbody.innerHTML += `
                     <tr>
@@ -1081,37 +1082,15 @@
             });
         }
 
-        // --- REALTIME DATABASE LOGIC ---
+        // --- REALTIME & LOGISTICS VISUALIZER LOGIC ---
         async function fetchLatestState() {
             try {
-                const { data: listing } = await supabaseClient
-                    .from('listings')
-                    .select('*')
-                    .gt('qty', 0)
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
+                const { data: listing } = await supabaseClient.from('listings').select('*').gt('qty', 0).order('created_at', { ascending: false }).limit(1).maybeSingle();
+                if (listing) { activeProduct = listing; renderProductUI(listing.crop, listing.price, listing.qty); }
 
-                if (listing) {
-                    activeProduct = listing;
-                    renderProductUI(listing.crop, listing.price, listing.qty);
-                }
-
-                const { data: order } = await supabaseClient
-                    .from('orders')
-                    .select('*')
-                    .eq('status', 'transit')
-                    .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
-
-                if (order) {
-                    activeOrder = order;
-                    renderOrderUI(order);
-                }
-            } catch (err) {
-                console.error("Error reading database states:", err);
-            }
+                const { data: order } = await supabaseClient.from('orders').select('*').neq('status', 'released').order('created_at', { ascending: false }).limit(1).maybeSingle();
+                if (order) { activeOrder = order; renderOrderUI(order); }
+            } catch (err) { console.error("Error loading state:", err); }
         }
 
         function setupRealtimeListeners() {
@@ -1132,15 +1111,14 @@
                     activeOrder = payload.new;
                     renderOrderUI(activeOrder);
                     loadOrderHistory();
-                    
-                    showToast(`Order Placed! $${parseFloat(activeOrder.total_escrow).toFixed(2)} locked in Escrow.`, 'warning');
-
-                    const truck = document.getElementById('map-truck');
-                    truck.style.display = 'block';
-                    setTimeout(() => { truck.style.left = "55%"; }, 100);
+                    showToast(`Order Placed! Escrow locked. Driver dispatched to farm.`, 'warning');
                 })
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
-                    if (payload.new.status === 'released') {
+                    activeOrder = payload.new;
+                    if (payload.new.status === 'picked_up') {
+                        updateLogisticsVisualizer('picked_up');
+                        showToast(`Driver picked up farm payload! Cargo en route.`, 'info');
+                    } else if (payload.new.status === 'released') {
                         executeUIPayoutRelease(payload.new);
                         showToast(`Delivery Confirmed! Escrow payout released.`, 'success');
                     }
@@ -1150,20 +1128,17 @@
         }
 
         function switchTab(tabName) {
-            const views = document.querySelectorAll('.tab-content');
-            views.forEach(view => view.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(view => view.classList.remove('active'));
             const targetView = document.getElementById('view-' + tabName);
             if (targetView) targetView.classList.add('active');
 
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById('tab-btn-' + tabName);
             if (activeBtn) activeBtn.classList.add('active');
         }
 
         function updateSteps(activeStepId, color) {
-            const steps = document.querySelectorAll('.step');
-            steps.forEach(step => {
+            document.querySelectorAll('.step').forEach(step => {
                 step.style.borderLeftColor = "#4b5563";
                 step.style.color = "#9ca3af";
             });
@@ -1180,41 +1155,19 @@
         }
 
         async function listProduct() {
-            if (!currentUser) {
-                showToast("Please log in before listing a harvest!", "warning");
-                openAuthModal('login');
-                return;
-            }
+            if (!currentUser) { showToast("Please log in before listing a harvest!", "warning"); openAuthModal('login'); return; }
 
             const crop = document.getElementById('crop-type').value.trim();
             const price = parseFloat(document.getElementById('crop-price').value);
             const qty = parseInt(document.getElementById('crop-qty').value);
 
-            if (!crop) {
-                showToast("Please enter a valid crop name.", "warning");
-                return;
-            }
-            if (isNaN(price) || price <= 0) {
-                showToast("Listing price must be greater than $0.00.", "warning");
-                return;
-            }
-            if (isNaN(qty) || qty <= 0) {
-                showToast("Listing quantity must be at least 1 kg.", "warning");
+            if (!crop || isNaN(price) || price <= 0 || isNaN(qty) || qty <= 0) {
+                showToast("Please enter valid listing details.", "warning");
                 return;
             }
 
-            const payload = { crop, price, qty, user_id: currentUser.id };
-
-            const { data, error } = await supabaseClient
-                .from('listings')
-                .insert([payload])
-                .select()
-                .single();
-
-            if (error) {
-                showToast("Error listing product: " + error.message, "warning");
-                return;
-            }
+            const { data, error } = await supabaseClient.from('listings').insert([{ crop, price, qty, user_id: currentUser.id }]).select().single();
+            if (error) { showToast("Listing error: " + error.message, "warning"); return; }
             activeProduct = data;
             switchTab('buyer');
             selectProductForCheckout();
@@ -1222,37 +1175,25 @@
 
         function renderProductUI(crop, price, qty) {
             if (qty <= 0) {
-                document.getElementById('storefront-list').innerHTML = `
-                    <div class="placeholder-box">
-                        <p style="font-weight: 500; margin-bottom: 4px;">Out of Stock</p>
-                        <p style="font-size: 0.85rem;">Create a new harvest listing to replenish inventory.</p>
-                    </div>`;
-
-                document.getElementById('marketplace-display').innerHTML = `
-                    <div class="placeholder-box" style="padding: 32px;">
-                        <p style="font-weight: 500; margin-bottom: 4px;">All Produce Currently Sold Out</p>
-                        <p style="font-size: 0.85rem;">Check back soon for new local harvest listings.</p>
-                    </div>`;
-
+                document.getElementById('storefront-list').innerHTML = `<div class="placeholder-box"><p style="font-weight: 500;">Out of Stock</p></div>`;
+                document.getElementById('marketplace-display').innerHTML = `<div class="placeholder-box"><p style="font-weight: 500;">All Produce Sold Out</p></div>`;
                 document.getElementById('order-action-area').style.display = 'none';
                 document.getElementById('no-order-active').style.display = 'block';
                 return;
             }
 
             document.getElementById('storefront-list').innerHTML = `
-                <div style="background-color: var(--primary-light); border: 1px solid #bbf7d0; padding: 18px; border-radius: 12px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                <div style="background-color: var(--primary-light); border: 1px solid #bbf7d0; padding: 18px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
                     <div>
-                        <span style="color: var(--primary); font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">Active Listing</span>
+                        <span style="color: var(--primary); font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">Active Listing</span>
                         <h3 style="font-size: 1.5rem; color: var(--primary-hover); margin: 4px 0;">🌾 ${crop}</h3>
                         <p style="color: var(--text-muted); font-size: 0.85rem;">Stock: <strong>${qty} kg</strong></p>
                     </div>
-                    <div style="text-align: right;">
-                        <span style="font-size: 2rem; font-weight: 900; color: var(--primary-hover);">$${price.toFixed(2)}</span>
-                    </div>
+                    <span style="font-size: 2rem; font-weight: 900; color: var(--primary-hover);">$${price.toFixed(2)}</span>
                 </div>`;
 
             document.getElementById('marketplace-display').innerHTML = `
-                <div style="border: 1px solid var(--border-color); background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm);">
+                <div style="border: 1px solid var(--border-color); background: white; padding: 20px; border-radius: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                         <div>
                             <h3>${crop}</h3>
@@ -1266,66 +1207,38 @@
 
         function selectProductForCheckout() {
             if (!activeProduct || activeProduct.qty <= 0) return;
-
             document.getElementById('max-stock-label').innerText = `(Max available: ${activeProduct.qty} kg)`;
             const orderQtyInput = document.getElementById('order-qty');
             orderQtyInput.max = activeProduct.qty;
-            
             if (parseInt(orderQtyInput.value) > activeProduct.qty || !orderQtyInput.value) {
                 orderQtyInput.value = Math.min(50, activeProduct.qty);
             }
-
             document.getElementById('no-order-active').style.display = 'none';
             document.getElementById('order-action-area').style.display = 'block';
             validateOrderQuantity();
         }
 
         async function placeOrder() {
-            if (!currentUser) {
-                showToast("Please log in before completing order checkout!", "warning");
-                openAuthModal('login');
-                return;
-            }
-
+            if (!currentUser) { showToast("Please log in before checkout!", "warning"); openAuthModal('login'); return; }
             if (!validateOrderQuantity()) return;
 
             const orderQty = parseInt(document.getElementById('order-qty').value);
             const cropCost = orderQty * activeProduct.price;
-            const totalEscrowAmount = cropCost + 15.00;
 
-            const orderPayload = {
+            const { data: newOrder, error } = await supabaseClient.from('orders').insert([{
                 crop: activeProduct.crop,
                 qty: orderQty,
                 crop_cost: cropCost,
                 delivery_fee: 15.00,
-                total_escrow: totalEscrowAmount,
+                total_escrow: cropCost + 15.00,
                 status: 'transit',
                 buyer_id: currentUser.id
-            };
+            }]).select().single();
 
-            const { data: newOrder, error: orderError } = await supabaseClient
-                .from('orders')
-                .insert([orderPayload])
-                .select()
-                .single();
+            if (error) { showToast("Order error: " + error.message, "warning"); return; }
 
-            if (orderError) {
-                showToast("Error placing order: " + orderError.message, "warning");
-                return;
-            }
-
-            const updatedStock = activeProduct.qty - orderQty;
-            const { error: stockError } = await supabaseClient
-                .from('listings')
-                .update({ qty: updatedStock })
-                .eq('id', activeProduct.id);
-
-            if (stockError) {
-                console.error("Error updating listing stock:", stockError);
-            } else {
-                activeProduct.qty = updatedStock;
-            }
-
+            await supabaseClient.from('listings').update({ qty: activeProduct.qty - orderQty }).eq('id', activeProduct.id);
+            activeProduct.qty -= orderQty;
             activeOrder = newOrder;
             switchTab('driver');
         }
@@ -1336,24 +1249,85 @@
 
             document.getElementById('ledger-amount').innerText = `$${tEscrow.toFixed(2)}`;
             document.getElementById('ledger-status-text').innerText = `🔐 ESCROW SECURED: $${tEscrow.toFixed(2)} locked in vault.`;
-            
             updateSteps('step-held', '#f59e0b');
 
             document.getElementById('driver-jobs').innerHTML = `
                 <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 16px; border-radius: 10px;">
-                    <h4>🚚 Farm ➔ City Delivery</h4>
-                    <p style="font-size: 0.85rem; font-weight: bold; color: #1e40af; margin-top: 8px;">Payout: $${dFee.toFixed(2)}</p>
+                    <h4>🚚 Cargo: ${order.crop} (${order.qty} kg)</h4>
+                    <p style="font-size: 0.85rem; font-weight: bold; color: #1e40af; margin-top: 8px;">Logistics Payout: $${dFee.toFixed(2)}</p>
                 </div>`;
-            document.getElementById('delivery-btn').style.display = 'block';
+            
+            document.getElementById('driver-controls').style.display = 'block';
+            
+            if (order.status === 'picked_up') {
+                document.getElementById('pickup-btn').style.display = 'none';
+                document.getElementById('delivery-btn').style.display = 'block';
+                updateLogisticsVisualizer('picked_up');
+            } else {
+                document.getElementById('pickup-btn').style.display = 'block';
+                document.getElementById('delivery-btn').style.display = 'none';
+                updateLogisticsVisualizer('dispatched');
+            }
+
             document.getElementById('order-action-area').style.display = 'none';
             document.getElementById('no-order-active').style.display = 'block';
-
             updateSteps('step-transit', '#3b82f6');
+        }
+
+        async function pickupDelivery() {
+            if (!activeOrder) return;
+            await supabaseClient.from('orders').update({ status: 'picked_up' }).eq('id', activeOrder.id);
         }
 
         async function completeDelivery() {
             if (!activeOrder) return;
             await supabaseClient.from('orders').update({ status: 'released' }).eq('id', activeOrder.id);
+        }
+
+        // --- GPS ROUTE SIMULATION ---
+        function updateLogisticsVisualizer(stage) {
+            const truck = document.getElementById('map-truck');
+            const progress = document.getElementById('map-progress-bar');
+            const statusText = document.getElementById('map-status-text');
+            const dispatchId = document.getElementById('map-dispatch-id');
+            const speedText = document.getElementById('gps-speed');
+            const latText = document.getElementById('gps-lat');
+            const longText = document.getElementById('gps-long');
+
+            if (activeOrder) dispatchId.innerText = activeOrder.id.toString().padStart(4, '0');
+
+            if (simulatedTransitTimer) clearInterval(simulatedTransitTimer);
+
+            if (stage === 'dispatched') {
+                statusText.innerText = "DRIVER EN ROUTE TO FARM";
+                statusText.style.color = "#f59e0b";
+                truck.style.left = "15%";
+                progress.style.width = "0%";
+                speedText.innerText = "35 km/h";
+                latText.innerText = "07.3775° N";
+                longText.innerText = "03.9470° E";
+            } else if (stage === 'picked_up') {
+                statusText.innerText = "PAYLOAD IN TRANSIT TO BUYER";
+                statusText.style.color = "#38bdf8";
+                speedText.innerText = "62 km/h";
+
+                let currentPct = 15;
+                simulatedTransitTimer = setInterval(() => {
+                    if (currentPct < 85) {
+                        currentPct += 2;
+                        truck.style.left = `${currentPct}%`;
+                        progress.style.width = `${currentPct - 15}%`;
+                        latText.innerText = `07.${(3775 + currentPct * 10).toFixed(0)}° N`;
+                        longText.innerText = `03.${(9470 + currentPct * 15).toFixed(0)}° E`;
+                    }
+                }, 400);
+            } else if (stage === 'delivered') {
+                statusText.innerText = "DELIVERY COMPLETE";
+                statusText.style.color = "#22c55e";
+                truck.style.left = "85%";
+                progress.style.width = "70%";
+                speedText.innerText = "0 km/h";
+            }
         }
 
         function executeUIPayoutRelease(orderTarget) {
@@ -1369,19 +1343,12 @@
             updateSteps('step-released', '#10b981');
 
             document.getElementById('driver-jobs').innerHTML = `<div style="color: #15803d; font-weight: bold;">Payout Complete!</div>`;
-            document.getElementById('delivery-btn').style.display = 'none';
-            
-            const truck = document.getElementById('map-truck');
-            truck.style.left = "65%";
-            setTimeout(() => {
-                truck.style.display = 'none';
-                truck.style.left = "25%";
-            }, 1000);
+            document.getElementById('driver-controls').style.display = 'none';
+
+            updateLogisticsVisualizer('delivered');
 
             activeOrder = null;
-            if (activeProduct) {
-                renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
-            }
+            if (activeProduct) { renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty); }
         }
     </script>
 </body>
