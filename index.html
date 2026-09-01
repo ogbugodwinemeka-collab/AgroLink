@@ -298,7 +298,44 @@
         }
         button.btn-blue:hover { background-color: var(--accent-blue-hover); }
 
-        /* Empty States & Placeholders */
+        /* Toast Notification System Styling */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 9999;
+        }
+        .toast {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 14px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-left: 4px solid var(--primary);
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.5s ease 3.5s forwards;
+        }
+        .toast.toast-success { border-left-color: #22c55e; }
+        .toast.toast-info { border-left-color: #3b82f6; }
+        .toast.toast-warning { border-left-color: #f59e0b; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(10px); }
+        }
+
+        /* Empty States & Map Styling */
         .placeholder-box {
             border: 2px dashed #cbd5e1;
             background-color: #f8fafc;
@@ -307,8 +344,6 @@
             text-align: center;
             color: var(--text-muted);
         }
-
-        /* Map & Ledger Footer */
         .map-box {
             background-color: #f1f5f9;
             border: 1px solid var(--border-color);
@@ -355,6 +390,7 @@
             transform: translateY(-50%);
             z-index: 1;
         }
+
         footer {
             background-color: #022c22;
             color: #f1f5f9;
@@ -404,7 +440,6 @@
             font-weight: 600;
         }
 
-        /* Modal Backdrop */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -426,6 +461,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Toast Notification Overlay Container -->
+    <div id="toast-container"></div>
 
     <div class="auth-bar">
         <div class="auth-container">
@@ -459,6 +497,7 @@
     </div>
 
     <main>
+        <!-- 1. FARMER VIEW PANEL -->
         <div id="view-farmer" class="tab-content active">
             <div class="grid">
                 <div class="card">
@@ -489,6 +528,7 @@
             </div>
         </div>
 
+        <!-- 2. BUYER VIEW PANEL -->
         <div id="view-buyer" class="tab-content">
             <div class="grid">
                 <div class="card">
@@ -533,6 +573,7 @@
             </div>
         </div>
 
+        <!-- 3. DRIVER VIEW PANEL -->
         <div id="view-driver" class="tab-content">
             <div class="grid">
                 <div class="card">
@@ -564,6 +605,7 @@
             </div>
         </div>
 
+        <!-- GLOBAL TRANSACTION & ORDER HISTORY TABLE -->
         <div class="card full-width-card">
             <h2>📜 Order & Escrow Transaction History</h2>
             <p class="subtitle">Live database ledger tracking all farm orders and escrow releases.</p>
@@ -591,6 +633,7 @@
         </div>
     </main>
 
+    <!-- AUTHENTICATION MODAL -->
     <div id="auth-modal" class="modal-overlay">
         <div class="modal">
             <h2 id="modal-title" style="margin-bottom: 16px;">Log In to AgroLink</h2>
@@ -636,6 +679,7 @@
         </div>
     </footer>
 
+    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -656,6 +700,25 @@
             await loadOrderHistory();
             setupRealtimeListeners();
         });
+
+        // --- TOAST NOTIFICATION LOGIC ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            let icon = '🔔';
+            if (type === 'success') icon = '✅';
+            if (type === 'warning') icon = '🔐';
+            if (type === 'info') icon = '🚚';
+
+            toast.innerHTML = `<span>${icon}</span> <div>${message}</div>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
+        }
 
         // --- AUTHENTICATION & ROLE-BASED UI FILTERING ---
         async function checkAuthSession() {
@@ -736,7 +799,7 @@
             const role = document.getElementById('auth-role').value;
 
             if (!email || !password) {
-                alert("Please enter both email and password.");
+                showToast("Please enter both email and password.", "warning");
                 return;
             }
 
@@ -747,16 +810,17 @@
                     options: { data: { user_role: role } }
                 });
                 if (error) {
-                    alert("Sign up error: " + error.message);
+                    showToast("Sign up error: " + error.message, "warning");
                 } else {
-                    alert(`Account created successfully as a ${role.toUpperCase()}!`);
+                    showToast(`Account created as ${role.toUpperCase()}!`, "success");
                     closeAuthModal();
                 }
             } else {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) {
-                    alert("Log in error: " + error.message);
+                    showToast("Log in error: " + error.message, "warning");
                 } else {
+                    showToast("Welcome back!", "success");
                     closeAuthModal();
                 }
             }
@@ -764,10 +828,10 @@
 
         async function handleLogout() {
             await supabaseClient.auth.signOut();
-            alert("Logged out successfully!");
+            showToast("Logged out successfully!", "info");
         }
 
-        // --- ORDER HISTORY & TRANSACTION TABLE LOGIC ---
+        // --- ORDER HISTORY TABLE LOGIC ---
         async function loadOrderHistory() {
             const { data: history, error } = await supabaseClient
                 .from('orders')
@@ -834,11 +898,15 @@
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'listings' }, payload => {
                     activeProduct = payload.new;
                     renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
+                    showToast(`New Listing: ${activeProduct.crop} ($${activeProduct.price}/kg)`, 'success');
                 })
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
                     activeOrder = payload.new;
                     renderOrderUI(activeOrder);
                     loadOrderHistory();
+                    
+                    showToast(`Order Placed! $${parseFloat(activeOrder.total_escrow).toFixed(2)} locked in Escrow.`, 'warning');
+
                     const truck = document.getElementById('map-truck');
                     truck.style.display = 'block';
                     setTimeout(() => { truck.style.left = "55%"; }, 100);
@@ -846,6 +914,7 @@
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, payload => {
                     if (payload.new.status === 'released') {
                         executeUIPayoutRelease(payload.new);
+                        showToast(`Delivery Confirmed! Escrow payout released.`, 'success');
                     }
                     loadOrderHistory();
                 })
@@ -884,7 +953,7 @@
 
         async function listProduct() {
             if (!currentUser) {
-                alert("Please log in or sign up before creating a harvest listing!");
+                showToast("Please log in before listing a harvest!", "warning");
                 openAuthModal('login');
                 return;
             }
@@ -904,7 +973,7 @@
                 .single();
 
             if (error) {
-                alert("Error listing product: " + error.message);
+                showToast("Error listing product: " + error.message, "warning");
                 return;
             }
             activeProduct = data;
@@ -949,7 +1018,7 @@
 
         async function placeOrder() {
             if (!currentUser) {
-                alert("Please log in or sign up before locking funds for an order!");
+                showToast("Please log in before completing order checkout!", "warning");
                 openAuthModal('login');
                 return;
             }
@@ -975,7 +1044,7 @@
                 .single();
 
             if (error) {
-                alert("Error placing order: " + error.message);
+                showToast("Error placing order: " + error.message, "warning");
                 return;
             }
             activeOrder = data;
