@@ -598,7 +598,7 @@
             setupRealtimeListeners();
         });
 
-        // --- AUTHENTICATION & ROLE MANAGEMENT ---
+        // --- AUTHENTICATION & ROLE-BASED UI FILTERING ---
         async function checkAuthSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             updateUserUI(session?.user || null);
@@ -614,15 +614,42 @@
             const loggedOutBtns = document.getElementById('auth-btns-logged-out');
             const loggedInBtns = document.getElementById('auth-btns-logged-in');
 
+            const farmerTab = document.getElementById('tab-btn-farmer');
+            const buyerTab = document.getElementById('tab-btn-buyer');
+            const driverTab = document.getElementById('tab-btn-driver');
+
             if (user) {
-                const userRole = user.user_metadata?.user_role ? user.user_metadata.user_role.toUpperCase() : 'USER';
-                statusText.innerText = `👤 Logged in: ${user.email} (${userRole})`;
+                const userRole = user.user_metadata?.user_role?.toLowerCase() || 'buyer';
+                statusText.innerText = `👤 Logged in: ${user.email} (${userRole.toUpperCase()})`;
                 loggedOutBtns.style.display = 'none';
                 loggedInBtns.style.display = 'flex';
+
+                // Filter tabs dynamically based on user role
+                if (userRole === 'farmer') {
+                    farmerTab.style.display = 'block';
+                    buyerTab.style.display = 'none';
+                    driverTab.style.display = 'none';
+                    switchTab('farmer');
+                } else if (userRole === 'buyer') {
+                    farmerTab.style.display = 'none';
+                    buyerTab.style.display = 'block';
+                    driverTab.style.display = 'none';
+                    switchTab('buyer');
+                } else if (userRole === 'driver') {
+                    farmerTab.style.display = 'none';
+                    buyerTab.style.display = 'none';
+                    driverTab.style.display = 'block';
+                    switchTab('driver');
+                }
             } else {
+                // Guest mode: show all tabs for demonstration
                 statusText.innerText = `👤 Status: Guest Mode`;
                 loggedOutBtns.style.display = 'flex';
                 loggedInBtns.style.display = 'none';
+
+                farmerTab.style.display = 'block';
+                buyerTab.style.display = 'block';
+                driverTab.style.display = 'block';
             }
         }
 
