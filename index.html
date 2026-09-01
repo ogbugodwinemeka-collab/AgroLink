@@ -223,6 +223,13 @@
             background-color: #ffffff;
             box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
         }
+        .stock-error {
+            color: #dc2626;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 6px;
+            display: none;
+        }
 
         /* Table Design */
         .table-responsive {
@@ -312,6 +319,12 @@
         button.btn:hover {
             background-color: var(--primary-hover);
             transform: translateY(-1px);
+        }
+        button.btn:disabled {
+            background-color: #cbd5e1 !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
         button.btn-orange {
             background-color: var(--accent-orange);
@@ -533,11 +546,11 @@
                     </div>
                     <div class="form-group">
                         <label>Price per kg ($)</label>
-                        <input type="number" id="crop-price" value="1.80" step="0.10">
+                        <input type="number" id="crop-price" value="1.80" step="0.10" min="0.01">
                     </div>
                     <div class="form-group">
                         <label>Total kg</label>
-                        <input type="number" id="crop-qty" value="250">
+                        <input type="number" id="crop-qty" value="250" min="1">
                     </div>
                     <button onclick="listProduct()" class="btn">Publish to Marketplace</button>
                 </div>
@@ -584,10 +597,11 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Quantity to Purchase (kg)</label>
-                            <input type="number" id="order-qty" value="50" oninput="selectProductForCheckout()">
+                            <label>Quantity to Purchase (kg) <span id="max-stock-label" style="text-transform: none; font-weight: normal; color: var(--primary);">(Max available: 0 kg)</span></label>
+                            <input type="number" id="order-qty" value="50" min="1" oninput="validateOrderQuantity()">
+                            <div id="stock-error-msg" class="stock-error">Requested quantity exceeds available stock!</div>
                         </div>
-                        <button onclick="placeOrder()" class="btn btn-orange">Lock Funds & Dispatch Driver</button>
+                        <button id="place-order-btn" onclick="placeOrder()" class="btn btn-orange">Lock Funds & Dispatch Driver</button>
                     </div>
                     <div id="no-order-active" style="text-align: center; padding: 24px 0; color: var(--text-muted); font-size: 0.875rem;">
                         <p>Select a product from the market view to initiate checkout.</p>
@@ -784,6 +798,40 @@
             showToast("Ledger CSV downloaded successfully!", "success");
         }
 
+        // --- INPUT GUARDRAILS & STOCK VALIDATION ---
+        function validateOrderQuantity() {
+            if (!activeProduct) return false;
+
+            const orderQtyInput = document.getElementById('order-qty');
+            const placeOrderBtn = document.getElementById('place-order-btn');
+            const stockErrorMsg = document.getElementById('stock-error-msg');
+            const orderQty = parseInt(orderQtyInput.value);
+
+            if (isNaN(orderQty) || orderQty <= 0) {
+                stockErrorMsg.innerText = "Please enter a valid quantity greater than 0 kg.";
+                stockErrorMsg.style.display = 'block';
+                placeOrderBtn.disabled = true;
+                return false;
+            }
+
+            if (orderQty > activeProduct.qty) {
+                stockErrorMsg.innerText = `Requested quantity exceeds available stock (${activeProduct.qty} kg)!`;
+                stockErrorMsg.style.display = 'block';
+                placeOrderBtn.disabled = true;
+                return false;
+            }
+
+            stockErrorMsg.style.display = 'none';
+            placeOrderBtn.disabled = false;
+
+            const cropCost = orderQty * activeProduct.price;
+            const totalEscrow = cropCost + 15.00;
+
+            document.getElementById('checkout-subtotal').innerText = `$${cropCost.toFixed(2)}`;
+            document.getElementById('checkout-total').innerText = `$${totalEscrow.toFixed(2)}`;
+            return true;
+        }
+
         // --- AUTHENTICATION & ROLE-BASED UI FILTERING ---
         async function checkAuthSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -931,6 +979,7 @@
                 const { data: listing } = await supabaseClient
                     .from('listings')
                     .select('*')
+                    .gt('qty', 0)
                     .order('created_at', { ascending: false })
                     .limit(1)
                     .maybeSingle();
@@ -964,6 +1013,12 @@
                     activeProduct = payload.new;
                     renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
                     showToast(`New Listing: ${activeProduct.crop} ($${activeProduct.price}/kg)`, 'success');
+                })
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'listings' }, payload => {
+                    if (activeProduct && activeProduct.id === payload.new.id) {
+                        activeProduct = payload.new;
+                        renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
+                    }
                 })
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
                     activeOrder = payload.new;
@@ -1023,11 +1078,22 @@
                 return;
             }
 
-            const crop = document.getElementById('crop-type').value;
+            const crop = document.getElementById('crop-type').value.trim();
             const price = parseFloat(document.getElementById('crop-price').value);
             const qty = parseInt(document.getElementById('crop-qty').value);
 
-            if (!crop || isNaN(price) || isNaN(qty)) return;
+            if (!crop) {
+                showToast("Please enter a valid crop name.", "warning");
+                return;
+            }
+            if (isNaN(price) || price <= 0) {
+                showToast("Listing price must be greater than $0.00.", "warning");
+                return;
+            }
+            if (isNaN(qty) || qty <= 0) {
+                showToast("Listing quantity must be at least 1 kg.", "warning");
+                return;
+            }
 
             const payload = { crop, price, qty, user_id: currentUser.id };
 
@@ -1047,6 +1113,24 @@
         }
 
         function renderProductUI(crop, price, qty) {
+            if (qty <= 0) {
+                document.getElementById('storefront-list').innerHTML = `
+                    <div class="placeholder-box">
+                        <p style="font-weight: 500; margin-bottom: 4px;">Out of Stock</p>
+                        <p style="font-size: 0.85rem;">Create a new harvest listing to replenish inventory.</p>
+                    </div>`;
+
+                document.getElementById('marketplace-display').innerHTML = `
+                    <div class="placeholder-box" style="padding: 32px;">
+                        <p style="font-weight: 500; margin-bottom: 4px;">All Produce Currently Sold Out</p>
+                        <p style="font-size: 0.85rem;">Check back soon for new local harvest listings.</p>
+                    </div>`;
+
+                document.getElementById('order-action-area').style.display = 'none';
+                document.getElementById('no-order-active').style.display = 'block';
+                return;
+            }
+
             document.getElementById('storefront-list').innerHTML = `
                 <div style="background-color: var(--primary-light); border: 1px solid #bbf7d0; padding: 18px; border-radius: 12px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
                     <div>
@@ -1062,7 +1146,10 @@
             document.getElementById('marketplace-display').innerHTML = `
                 <div style="border: 1px solid var(--border-color); background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow-sm);">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                        <div><h3>${crop}</h3></div>
+                        <div>
+                            <h3>${crop}</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">Available: <strong>${qty} kg</strong></p>
+                        </div>
                         <span style="font-size: 1.25rem; font-weight: bold; color: var(--primary);">$${price.toFixed(2)}/kg</span>
                     </div>
                     <button onclick="selectProductForCheckout()" class="btn" style="background-color: var(--primary-light); color: var(--primary-hover); box-shadow: none;">Select for Purchase</button>
@@ -1070,15 +1157,19 @@
         }
 
         function selectProductForCheckout() {
-            if (!activeProduct) return;
-            const orderQty = parseInt(document.getElementById('order-qty').value) || 50;
-            const cropCost = orderQty * activeProduct.price;
-            const totalEscrow = cropCost + 15.00;
+            if (!activeProduct || activeProduct.qty <= 0) return;
+
+            document.getElementById('max-stock-label').innerText = `(Max available: ${activeProduct.qty} kg)`;
+            const orderQtyInput = document.getElementById('order-qty');
+            orderQtyInput.max = activeProduct.qty;
+            
+            if (parseInt(orderQtyInput.value) > activeProduct.qty || !orderQtyInput.value) {
+                orderQtyInput.value = Math.min(50, activeProduct.qty);
+            }
 
             document.getElementById('no-order-active').style.display = 'none';
             document.getElementById('order-action-area').style.display = 'block';
-            document.getElementById('checkout-subtotal').innerText = `$${cropCost.toFixed(2)}`;
-            document.getElementById('checkout-total').innerText = `$${totalEscrow.toFixed(2)}`;
+            validateOrderQuantity();
         }
 
         async function placeOrder() {
@@ -1087,6 +1178,8 @@
                 openAuthModal('login');
                 return;
             }
+
+            if (!validateOrderQuantity()) return;
 
             const orderQty = parseInt(document.getElementById('order-qty').value);
             const cropCost = orderQty * activeProduct.price;
@@ -1102,17 +1195,31 @@
                 buyer_id: currentUser.id
             };
 
-            const { data, error } = await supabaseClient
+            const { data: newOrder, error: orderError } = await supabaseClient
                 .from('orders')
                 .insert([orderPayload])
                 .select()
                 .single();
 
-            if (error) {
-                showToast("Error placing order: " + error.message, "warning");
+            if (orderError) {
+                showToast("Error placing order: " + orderError.message, "warning");
                 return;
             }
-            activeOrder = data;
+
+            // Deduct stock quantity in listings table
+            const updatedStock = activeProduct.qty - orderQty;
+            const { error: stockError } = await supabaseClient
+                .from('listings')
+                .update({ qty: updatedStock })
+                .eq('id', activeProduct.id);
+
+            if (stockError) {
+                console.error("Error updating listing stock:", stockError);
+            } else {
+                activeProduct.qty = updatedStock;
+            }
+
+            activeOrder = newOrder;
             switchTab('driver');
         }
 
@@ -1164,8 +1271,10 @@
                 truck.style.left = "25%";
             }, 1000);
 
-            activeProduct = null;
             activeOrder = null;
+            if (activeProduct) {
+                renderProductUI(activeProduct.crop, activeProduct.price, activeProduct.qty);
+            }
         }
     </script>
 </body>
