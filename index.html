@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -176,6 +176,14 @@
         .full-width-card {
             margin-top: 24px;
         }
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
         h2 {
             font-size: 1.3rem;
             font-weight: 700;
@@ -270,6 +278,24 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .btn-auth-secondary:hover { background-color: rgba(255, 255, 255, 0.1); }
+        .btn-export {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-export:hover {
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+        }
         button.btn {
             width: 100%;
             background-color: var(--primary);
@@ -298,7 +324,7 @@
         }
         button.btn-blue:hover { background-color: var(--accent-blue-hover); }
 
-        /* Toast Notification System Styling */
+        /* Toast Notification Styling */
         #toast-container {
             position: fixed;
             bottom: 24px;
@@ -462,7 +488,6 @@
 </head>
 <body>
 
-    <!-- Toast Notification Overlay Container -->
     <div id="toast-container"></div>
 
     <div class="auth-bar">
@@ -497,7 +522,6 @@
     </div>
 
     <main>
-        <!-- 1. FARMER VIEW PANEL -->
         <div id="view-farmer" class="tab-content active">
             <div class="grid">
                 <div class="card">
@@ -528,7 +552,6 @@
             </div>
         </div>
 
-        <!-- 2. BUYER VIEW PANEL -->
         <div id="view-buyer" class="tab-content">
             <div class="grid">
                 <div class="card">
@@ -573,7 +596,6 @@
             </div>
         </div>
 
-        <!-- 3. DRIVER VIEW PANEL -->
         <div id="view-driver" class="tab-content">
             <div class="grid">
                 <div class="card">
@@ -605,10 +627,14 @@
             </div>
         </div>
 
-        <!-- GLOBAL TRANSACTION & ORDER HISTORY TABLE -->
         <div class="card full-width-card">
-            <h2>📜 Order & Escrow Transaction History</h2>
-            <p class="subtitle">Live database ledger tracking all farm orders and escrow releases.</p>
+            <div class="card-header-flex">
+                <div>
+                    <h2>📜 Order & Escrow Transaction History</h2>
+                    <p class="subtitle" style="margin-bottom: 0;">Live database ledger tracking all farm orders and escrow releases.</p>
+                </div>
+                <button onclick="exportLedgerToCSV()" class="btn-export">📥 Export to CSV</button>
+            </div>
             <div class="table-responsive">
                 <table class="history-table">
                     <thead>
@@ -633,7 +659,6 @@
         </div>
     </main>
 
-    <!-- AUTHENTICATION MODAL -->
     <div id="auth-modal" class="modal-overlay">
         <div class="modal">
             <h2 id="modal-title" style="margin-bottom: 16px;">Log In to AgroLink</h2>
@@ -679,7 +704,6 @@
         </div>
     </footer>
 
-    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -692,6 +716,7 @@
 
         let activeProduct = null;
         let activeOrder = null;
+        let cachedOrdersHistory = [];
         let wallets = { farmer: 0.00, driver: 0.00 };
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -718,6 +743,45 @@
             setTimeout(() => {
                 toast.remove();
             }, 4000);
+        }
+
+        // --- CSV EXPORT LOGIC ---
+        function exportLedgerToCSV() {
+            if (!cachedOrdersHistory || cachedOrdersHistory.length === 0) {
+                showToast("No transactions available to export.", "warning");
+                return;
+            }
+
+            const headers = ["ID", "Crop", "Quantity (kg)", "Crop Cost ($)", "Delivery Fee ($)", "Total Escrow ($)", "Status", "Created At"];
+            const csvRows = [];
+            csvRows.push(headers.join(","));
+
+            cachedOrdersHistory.forEach(ord => {
+                const row = [
+                    ord.id || "",
+                    `"${ord.crop || ""}"`,
+                    ord.qty || 0,
+                    parseFloat(ord.crop_cost || 0).toFixed(2),
+                    parseFloat(ord.delivery_fee || 15).toFixed(2),
+                    parseFloat(ord.total_escrow || 0).toFixed(2),
+                    `"${ord.status || ""}"`,
+                    `"${ord.created_at || new Date().toISOString()}"`
+                ];
+                csvRows.push(row.join(","));
+            });
+
+            const csvString = csvRows.join("\n");
+            const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            
+            const downloadLink = document.createElement("a");
+            downloadLink.href = url;
+            downloadLink.setAttribute("download", `agrolink_ledger_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            showToast("Ledger CSV downloaded successfully!", "success");
         }
 
         // --- AUTHENTICATION & ROLE-BASED UI FILTERING ---
@@ -840,6 +904,7 @@
 
             if (error || !history || history.length === 0) return;
 
+            cachedOrdersHistory = history;
             const tbody = document.getElementById('history-table-body');
             tbody.innerHTML = '';
 
