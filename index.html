@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -208,7 +208,7 @@
             letter-spacing: 0.5px;
             margin-bottom: 8px;
         }
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px 14px;
             border: 1px solid var(--border-color);
@@ -217,7 +217,7 @@
             background-color: #f8fafc;
             transition: all 0.2s ease;
         }
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
             background-color: #ffffff;
@@ -374,7 +374,7 @@
             to { opacity: 0; transform: translateY(10px); }
         }
 
-        /* Empty States & Map Styling */
+        /* Map Styling */
         .placeholder-box {
             border: 2px dashed #cbd5e1;
             background-color: #f8fafc;
@@ -494,7 +494,7 @@
             padding: 32px;
             border-radius: var(--radius);
             width: 90%;
-            max-width: 420px;
+            max-width: 460px;
             box-shadow: var(--shadow-lg);
         }
     </style>
@@ -511,6 +511,7 @@
                 <button onclick="openAuthModal('signup')" class="btn-sm btn-auth-primary">Sign Up</button>
             </div>
             <div class="auth-btns" id="auth-btns-logged-in" style="display: none;">
+                <button onclick="openProfileModal()" class="btn-sm btn-auth-primary">👤 Profile & Settings</button>
                 <button onclick="handleLogout()" class="btn-sm btn-auth-secondary">Log Out</button>
             </div>
         </div>
@@ -697,6 +698,33 @@
         </div>
     </div>
 
+    <div id="profile-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 style="margin-bottom: 6px;">👤 Account & Location Profile</h2>
+            <p class="subtitle" style="margin-bottom: 18px;">Manage your contact and delivery logistics details.</p>
+            
+            <div class="form-group">
+                <label>Full Name / Business Name</label>
+                <input type="text" id="prof-fullname" placeholder="e.g. Godwin Emeka or Agro Enterprise">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="prof-phone" placeholder="e.g. +234 801 234 5678">
+            </div>
+            <div class="form-group">
+                <label id="prof-address-label">Location Address</label>
+                <textarea id="prof-address" rows="2" placeholder="e.g. Plot 12 Farm Road, Ibadan, Oyo State"></textarea>
+            </div>
+            <div class="form-group" id="prof-vehicle-group" style="display: none;">
+                <label>Vehicle / Transport Details</label>
+                <input type="text" id="prof-vehicle" placeholder="e.g. 3-Ton Refrigerated Truck (KJA-123XY)">
+            </div>
+            
+            <button onclick="saveUserProfile()" class="btn" style="margin-bottom: 8px;">Save Profile</button>
+            <button onclick="closeProfileModal()" class="btn-sm btn-auth-secondary" style="color: var(--text-muted); border-color: var(--border-color); width: 100%;">Cancel</button>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-container">
             <div class="ledger-box">
@@ -727,6 +755,7 @@
         let supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
         let currentAuthMode = 'login';
+        let userProfileData = null;
 
         let activeProduct = null;
         let activeOrder = null;
@@ -757,6 +786,83 @@
             setTimeout(() => {
                 toast.remove();
             }, 4000);
+        }
+
+        // --- PROFILE MODAL & MANAGEMENT ---
+        async function fetchUserProfile() {
+            if (!currentUser) return;
+
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .maybeSingle();
+
+            if (data) {
+                userProfileData = data;
+                document.getElementById('prof-fullname').value = data.full_name || '';
+                document.getElementById('prof-phone').value = data.phone || '';
+                document.getElementById('prof-address').value = data.location_address || '';
+                document.getElementById('prof-vehicle').value = data.vehicle_info || '';
+            }
+        }
+
+        function openProfileModal() {
+            if (!currentUser) {
+                openAuthModal('login');
+                return;
+            }
+
+            const userRole = currentUser.user_metadata?.user_role?.toLowerCase() || 'buyer';
+            const addressLabel = document.getElementById('prof-address-label');
+            const vehicleGroup = document.getElementById('prof-vehicle-group');
+
+            if (userRole === 'farmer') {
+                addressLabel.innerText = "Farm / Depot Address";
+                vehicleGroup.style.display = 'none';
+            } else if (userRole === 'buyer') {
+                addressLabel.innerText = "Store / Delivery Address";
+                vehicleGroup.style.display = 'none';
+            } else if (userRole === 'driver') {
+                addressLabel.innerText = "Base Location / Station";
+                vehicleGroup.style.display = 'block';
+            }
+
+            document.getElementById('profile-modal').style.display = 'flex';
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').style.display = 'none';
+        }
+
+        async function saveUserProfile() {
+            if (!currentUser) return;
+
+            const fullName = document.getElementById('prof-fullname').value.trim();
+            const phone = document.getElementById('prof-phone').value.trim();
+            const address = document.getElementById('prof-address').value.trim();
+            const vehicle = document.getElementById('prof-vehicle').value.trim();
+
+            const profilePayload = {
+                id: currentUser.id,
+                full_name: fullName,
+                phone: phone,
+                location_address: address,
+                vehicle_info: vehicle,
+                updated_at: new Date().toISOString()
+            };
+
+            const { error } = await supabaseClient
+                .from('profiles')
+                .upsert(profilePayload);
+
+            if (error) {
+                showToast("Profile update error: " + error.message, "warning");
+            } else {
+                userProfileData = profilePayload;
+                showToast("Profile settings saved successfully!", "success");
+                closeProfileModal();
+            }
         }
 
         // --- CSV EXPORT LOGIC ---
@@ -842,7 +948,7 @@
             });
         }
 
-        function updateUserUI(user) {
+        async function updateUserUI(user) {
             currentUser = user;
             const statusText = document.getElementById('user-status-text');
             const loggedOutBtns = document.getElementById('auth-btns-logged-out');
@@ -853,6 +959,7 @@
             const driverTab = document.getElementById('tab-btn-driver');
 
             if (user) {
+                await fetchUserProfile();
                 const userRole = user.user_metadata?.user_role?.toLowerCase() || 'buyer';
                 statusText.innerText = `👤 Logged in: ${user.email} (${userRole.toUpperCase()})`;
                 loggedOutBtns.style.display = 'none';
@@ -940,6 +1047,7 @@
 
         async function handleLogout() {
             await supabaseClient.auth.signOut();
+            userProfileData = null;
             showToast("Logged out successfully!", "info");
         }
 
@@ -1206,7 +1314,6 @@
                 return;
             }
 
-            // Deduct stock quantity in listings table
             const updatedStock = activeProduct.qty - orderQty;
             const { error: stockError } = await supabaseClient
                 .from('listings')
